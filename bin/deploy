@@ -1,0 +1,11 @@
+gem build active_shipping.gemspec
+
+pattern="*.gem"
+
+file=($pattern)
+
+gem push --key github \
+  --host https://rubygems.pkg.github.com/Hello-Labs \
+  $file
+
+rm $file
