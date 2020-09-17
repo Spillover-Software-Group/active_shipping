@@ -13,3 +13,4 @@ doc/
 .idea
 .bundle
 .byebug_history
+vendor/bundle
