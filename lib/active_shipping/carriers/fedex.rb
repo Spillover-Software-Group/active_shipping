@@ -591,6 +591,17 @@ module ActiveShipping
 
       if success
         tracking_details_root = xml.at('CompletedTrackDetails')
+        if tracking_details_root.nil?
+          return TrackingResponse.new(
+            false,
+            "The response did not contain tracking details",
+            Hash.from_xml(response),
+            carrier: @@name,
+            xml: response,
+            request: last_request
+          )
+        end
+
         success = response_success?(tracking_details_root)
         message = response_message(tracking_details_root)
       end
