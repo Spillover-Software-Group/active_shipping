@@ -598,6 +598,18 @@ class FedExTest < ActiveSupport::TestCase
     assert_empty response.shipment_events
   end
 
+  def test_tracking_info_with_missing_tracking_details
+    mock_response = xml_fixture('fedex/tracking_response_missing_tracking_details')
+    @carrier.expects(:commit).returns(mock_response)
+
+    error = assert_raises(ActiveShipping::ResponseError) do
+      @carrier.find_tracking_info('123456789012')
+    end
+
+    msg = 'The response did not contain tracking details'
+    assert_equal msg, error.message
+  end
+
   ### create_shipment
 
   def test_create_shipment
