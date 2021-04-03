@@ -4,10 +4,6 @@ $:.unshift(lib) unless $:.include?(lib)
 require "active_shipping/version"
 
 Gem::Specification.new do |s|
-  if s.respond_to?(:metadata)
-    s.metadata["allowed_push_host"] = "https://rubygems.pkg.github.com/Hello-Labs/"
-  end
-
   s.name          = "active_shipping"
   s.version       = ActiveShipping::VERSION
   s.platform      = Gem::Platform::RUBY

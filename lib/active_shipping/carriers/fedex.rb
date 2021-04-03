@@ -185,7 +185,7 @@ module ActiveShipping
     end
 
     def maximum_address_field_length
-      # See Fedex Developper Guide
+      # See Fedex Developer Guide
       35
     end
 
