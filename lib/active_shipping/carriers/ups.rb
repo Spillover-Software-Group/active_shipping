@@ -1159,7 +1159,7 @@ module ActiveShipping
       end
 
       name ||= OTHER_NON_US_ORIGIN_SERVICES[code] unless name == 'US'
-      name || DEFAULT_SERVICES[code]
+      name ||= DEFAULT_SERVICES[code]
 
       "Legacy #{name}" if name
     end
