@@ -1122,7 +1122,7 @@ module ActiveShipping
 
     def commit(action, request, test = false)
       response = ssl_post("#{test ? TEST_URL : LIVE_URL}/#{RESOURCES[action]}", request, "Authorization" => "Bearer #{@options[:access_token]}")
-      response.encode('utf-8', 'iso-8859-1')
+      response = response.encode('utf-8', 'iso-8859-1')
 
       if response.include?("<ErrorCode>250002</ErrorCode>")
         refresh_token = @options[:refresh_token]
@@ -1157,6 +1157,8 @@ module ActiveShipping
           config.ups_refresh_token = nil
           response
         end
+      else
+        response
       end
     end
 
