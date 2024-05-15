@@ -1,23 +1,23 @@
 module ActiveShipping
-  class UPS < Carrier
+  class UPSRest < Carrier
     self.retry_safe = true
     self.ssl_version = :TLSv1_2
 
     cattr_accessor :default_options
     cattr_reader :name
-    @@name = "UPS Legacy"
+    @@name = "UPS"
 
     TEST_URL = 'https://wwwcie.ups.com'
     LIVE_URL = 'https://onlinetools.ups.com'
 
     RESOURCES = {
-      :rates => 'ups.app/xml/Rate',
-      :track => 'ups.app/xml/Track',
-      :ship_confirm => 'ups.app/xml/ShipConfirm',
-      :ship_accept => 'ups.app/xml/ShipAccept',
-      :delivery_dates =>  'ups.app/xml/TimeInTransit',
-      :void =>  'ups.app/xml/Void',
-      :validate_address => 'ups.app/xml/XAV'
+      :rates => 'api/ups.app/xml/Rate',
+      :track => 'api/ups.app/xml/Track',
+      :ship_confirm => 'api/ups.app/xml/ShipConfirm',
+      :ship_accept => 'api/ups.app/xml/ShipAccept',
+      :delivery_dates =>  'api/ups.app/xml/TimeInTransit',
+      :void =>  'api/ups.app/xml/Void',
+      :validate_address => 'api/ups.app/xml/XAV'
     }
 
     PICKUP_CODES = HashWithIndifferentAccess.new(
@@ -125,7 +125,7 @@ module ActiveShipping
 
     US_TERRITORIES_TREATED_AS_COUNTRIES = %w(AS FM GU MH MP PW PR VI)
 
-    IMPERIAL_COUNTRIES = %w(US LR MM)
+    IMPERIAL_COUNTRIES = %w(US GB LR MM)
 
     COUNTRY_MAPPING = {
       'XK' => 'KV'
@@ -149,16 +149,15 @@ module ActiveShipping
     }
 
     def requirements
-      [:key, :login, :password]
+      [:client_id, :client_secret, :access_token, :refresh_token]
     end
 
     def find_rates(origin, destination, packages, options = {})
       origin, destination = upsified_location(origin), upsified_location(destination)
       options = @options.merge(options)
       packages = Array(packages)
-      access_request = build_access_request
       rate_request = build_rate_request(origin, destination, packages, options)
-      response = commit(:rates, save_request(access_request + rate_request), options[:test])
+      response = commit(:rates, save_request(rate_request), options[:test])
       parse_rate_response(origin, destination, packages, response, options)
     end
 
@@ -173,22 +172,20 @@ module ActiveShipping
     #   response should a list of shipment tracking events if successful.
     def find_tracking_info(tracking_number, options = {})
       options = @options.merge(options)
-      access_request = build_access_request
       tracking_request = build_tracking_request(tracking_number, options)
-      response = commit(:track, save_request(access_request + tracking_request), options[:test])
+      response = commit(:track, save_request(tracking_request), options[:test])
       parse_tracking_response(response, options)
     end
 
     def create_shipment(origin, destination, packages, options = {})
       options = @options.merge(options)
       packages = Array(packages)
-      access_request = build_access_request
 
       # STEP 1: Confirm.  Validation step, important for verifying price.
       confirm_request = build_shipment_request(origin, destination, packages, options)
       logger.debug(confirm_request) if logger
 
-      confirm_response = commit(:ship_confirm, save_request(access_request + confirm_request), (options[:test] || false))
+      confirm_response = commit(:ship_confirm, save_request(confirm_request), (options[:test] || false))
       logger.debug(confirm_response) if logger
 
       # ... now, get the digest, it's needed to get the label.  In theory,
@@ -204,7 +201,7 @@ module ActiveShipping
       accept_request = build_accept_request(digest, options)
       logger.debug(accept_request) if logger
 
-      accept_response = commit(:ship_accept, save_request(access_request + accept_request), (options[:test] || false))
+      accept_response = commit(:ship_accept, save_request(accept_request), (options[:test] || false))
       logger.debug(accept_response) if logger
 
       # ...finally, build a map from the response that contains
@@ -216,17 +213,15 @@ module ActiveShipping
       origin, destination = upsified_location(origin), upsified_location(destination)
       options = @options.merge(options)
       packages = Array(packages)
-      access_request = build_access_request
       dates_request = build_delivery_dates_request(origin, destination, packages, pickup_date, options)
-      response = commit(:delivery_dates, save_request(access_request + dates_request), (options[:test] || false))
+      response = commit(:delivery_dates, save_request(dates_request), (options[:test] || false))
       parse_delivery_dates_response(origin, destination, packages, response, options)
     end
 
     def void_shipment(tracking, options={})
       options = @options.merge(options)
-      access_request = build_access_request
       void_request = build_void_request(tracking)
-      response = commit(:void, save_request(access_request + void_request), (options[:test] || false))
+      response = commit(:void, save_request(void_request), (options[:test] || false))
       parse_void_response(response, options)
     end
 
@@ -244,9 +239,8 @@ module ActiveShipping
     def validate_address(location, options = {})
       location = upsified_location(location)
       options = @options.merge(options)
-      access_request = build_access_request
       address_validation_request = build_address_validation_request(location, options)
-      response = commit(:validate_address, save_request(access_request + address_validation_request), options[:test])
+      response = commit(:validate_address, save_request(address_validation_request), options[:test])
       parse_address_validation_response(location, response, options)
     end
 
@@ -262,17 +256,6 @@ module ActiveShipping
       else
         location
       end
-    end
-
-    def build_access_request
-      xml_builder = Nokogiri::XML::Builder.new do |xml|
-        xml.AccessRequest do
-          xml.AccessLicenseNumber(@options[:key])
-          xml.UserId(@options[:login])
-          xml.Password(@options[:password])
-        end
-      end
-      xml_builder.to_xml
     end
 
     # Builds an XML node to request UPS shipping rates for the given packages
@@ -1138,8 +1121,43 @@ module ActiveShipping
     end
 
     def commit(action, request, test = false)
-      response = ssl_post("#{test ? TEST_URL : LIVE_URL}/#{RESOURCES[action]}", request)
+      response = ssl_post("#{test ? TEST_URL : LIVE_URL}/#{RESOURCES[action]}", request, "Authorization" => "Bearer #{@options[:access_token]}")
       response.encode('utf-8', 'iso-8859-1')
+
+      if response.include?("<ErrorCode>250002</ErrorCode>")
+        refresh_token = @options[:refresh_token]
+        client_id = @options[:client_id]
+        client_secret = @options[:client_secret]
+        config = Spree::ActiveShippingConfiguration.new
+
+        # Refresh the access token and try again
+        if refresh_token && client_id && client_secret
+          auth = Base64.strict_encode64("#{client_id}:#{client_secret}")
+
+          begin
+            refresh_response = ssl_post("#{test ? TEST_URL : LIVE_URL}/security/v1/oauth/refresh", "grant_type=refresh_token&refresh_token=#{refresh_token}", "Authorization" => "Basic #{auth}", "Content-Type" => "application/x-www-form-urlencoded").encode('utf-8', 'iso-8859-1')
+
+            json = JSON.parse(refresh_response)
+
+            @options[:access_token] = json["access_token"]
+            @options[:refresh_token] = json["refresh_token"]
+
+            config.ups_access_token = @options[:access_token]
+            config.ups_refresh_token = @options[:refresh_token]
+
+            response = ssl_post("#{test ? TEST_URL : LIVE_URL}/#{RESOURCES[action]}", request, "Authorization" => "Bearer #{@options[:access_token]}")
+            response.encode('utf-8', 'iso-8859-1')
+          rescue ActiveUtils::ResponseError
+            config.ups_access_token = nil
+            config.ups_refresh_token = nil
+            response
+          end
+        else
+          config.ups_access_token = nil
+          config.ups_refresh_token = nil
+          response
+        end
+      end
     end
 
     def within_same_area?(origin, location)
@@ -1160,8 +1178,6 @@ module ActiveShipping
 
       name ||= OTHER_NON_US_ORIGIN_SERVICES[code] unless name == 'US'
       name || DEFAULT_SERVICES[code]
-
-      "Legacy #{name}" if name
     end
 
     def allow_package_level_reference_numbers(origin, destination)
