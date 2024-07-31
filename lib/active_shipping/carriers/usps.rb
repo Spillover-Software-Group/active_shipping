@@ -318,7 +318,7 @@ module ActiveShipping
       return false unless @options[:login]
       request = <<-EOF
       <?xml version="1.0" encoding="UTF-8"?>
-      <CarrierPickupAvailabilityRequest USERID="#{URI.encode(@options[:login])}">
+      <CarrierPickupAvailabilityRequest USERID="#{CGI.escape(@options[:login])}">
         <FirmName>Shopifolk</FirmName>
         <SuiteOrApt>Suite 0</SuiteOrApt>
         <Address2>18 Fair Ave</Address2>
@@ -684,7 +684,8 @@ module ActiveShipping
     def request_url(action, request, test)
       scheme = USE_SSL[action] ? 'https://' : 'http://'
       host = test ? TEST_DOMAINS[USE_SSL[action]] : LIVE_DOMAIN
-      "#{scheme}#{host}/#{LIVE_RESOURCE}?API=#{API_CODES[action]}&XML=#{URI.encode(request)}"
+      query = URI.encode_www_form("API" => API_CODES[action], "XML" => request)
+      "#{scheme}#{host}/#{LIVE_RESOURCE}?#{query}"
     end
 
     def strip_zip(zip)

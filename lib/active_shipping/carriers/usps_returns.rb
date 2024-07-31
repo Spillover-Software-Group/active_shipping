@@ -79,7 +79,8 @@ module ActiveShipping
       scheme = USE_SSL[action] ? 'https://' : 'http://'
       host = test ? TEST_DOMAIN : LIVE_DOMAIN
       resource = test ? TEST_RESOURCE : LIVE_RESOURCE
-      "#{scheme}#{host}/#{resource}?#{API_CODES[action]}=#{URI.encode(request)}"
+      query = URI.encode_www_form(API_CODES[action] => request)
+      "#{scheme}#{host}/#{resource}?#{query}"
     end
 
   end
