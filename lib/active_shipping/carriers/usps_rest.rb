@@ -153,7 +153,7 @@ module ActiveShipping
         ]
       }
       
-      raise parse_rate_response(origin, destination, packages, request_body, options = {}).inspect
+      parse_rate_response(origin, destination, packages, request_body, options = {})
     end
 
     protected
@@ -178,7 +178,7 @@ module ActiveShipping
 
       rates_estimates = response[:rates].map do |rate|
         {
-          sku: rate[:sku],
+          sku: rate[:SKU],
           description: rate[:description],
           price: rate[:price],
           mail_class: rate[:mailClass]
