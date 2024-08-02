@@ -1,3 +1,5 @@
+require "httpx"
+
 module ActiveShipping
   class USPSRest < Carrier
     EventDetails = Struct.new(:description, :time, :zoneless_time, :location, :event_code)
