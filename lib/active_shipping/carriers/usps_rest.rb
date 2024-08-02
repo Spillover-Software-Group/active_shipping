@@ -126,10 +126,10 @@ module ActiveShipping
         priceType: "COMMERCIAL"
       }
 
-      request = http_request(
-        "https://api-cat.usps.com/prices/v3/base-rates/search",
-        body:,
-      )
+      # request = http_request(
+      #   "https://api-cat.usps.com/prices/v3/base-rates/search",
+      #   body:,
+      # )
 
       # raise request.inspect
 
@@ -153,7 +153,7 @@ module ActiveShipping
         ]
       }
       
-      parse_rate_response(origin, destination, packages, request_body, options = {})
+      raise parse_rate_response(origin, destination, packages, request_body, options = {}).inspect
     end
 
     protected
@@ -163,11 +163,58 @@ module ActiveShipping
       message = ''
       rate_hash = {}
 
-      # # TODO: if error
+      # TODO: if error
       # if request.status === 201
       # else
-      #   rate_estimates = 
+      #   rates_estimates = request_body.rates.map do |rate|
+      #     {
+      #       sku: rate["sku"],
+      #       description: rate["USPS Ground Advantage Nonmachinable Dimensional Rectangular"],
+      #       price: rate["price"],
+      #       mail_class: rate["mailClass"]
+      #     }
+      #   end
       # end
+
+      rates_estimates = request_body.rates.map do |rate|
+        {
+          sku: rate["sku"],
+          description: rate["description"],
+          price: rate["price"],
+          mail_class: rate["mailClass"]
+        }
+
+      RateResponse.new(success, message, response, rates: rates_estimates)
+    end
+
+    # begin
+    #   response = carrier.find_rates(origin, destination, shipment_packages, rate_options)
+    #   # turn this beastly array into a nice little hash
+    #   service_code_prefix_key = response.params.keys.first == 'IntlRateV2Response' ? :international : :domestic
+    #   rates = response.rates.collect do |rate|
+    #     service_code = "#{SERVICE_CODE_PREFIX[service_code_prefix_key]}:#{rate.service_code}"
+    #     [service_code, rate.price]
+    #   end
+    #   rate_hash = Hash[*rates.flatten]
+    #   return rate_hash
+    # rescue ::ActiveShipping::Error => e
+
+    def rates_from_response_node(response, packages, options)
+      rate_hash = {
+        "mailClass": {
+          service_name = rate["description"]
+          service_code = rate["mailClass"]
+          price = rate["price"]
+        }
+      }
+
+      response.request_body["rates"].map do |rate|
+        rate_hash[:service_name] = rate["description"]
+        rate_hash[:service_code] = rate["mailClass"]
+        rate_hash[:price] = rate["price"]
+      end
+
+      rate_hash
     end
 
     private
