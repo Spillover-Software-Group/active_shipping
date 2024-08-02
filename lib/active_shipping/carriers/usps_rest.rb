@@ -183,6 +183,7 @@ module ActiveShipping
           price: rate["price"],
           mail_class: rate["mailClass"]
         }
+      end
 
       RateResponse.new(success, message, response, rates: rates_estimates)
     end
