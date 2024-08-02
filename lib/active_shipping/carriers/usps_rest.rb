@@ -181,7 +181,7 @@ module ActiveShipping
           sku: rate[:SKU],
           description: rate[:description],
           price: rate[:price],
-          mail_class: rate[:mailClass]
+          service_code: rate[:mailClass]
         }
       end
 
