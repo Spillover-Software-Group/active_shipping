@@ -137,10 +137,10 @@ module ActiveShipping
     private
 
     def http_client(verb, full_url, body)
-      autorization_header = {
-        "Authorization" => "Bearer #{@options[:access_token]}"
+      headers = {
+        "Authorization" => "Bearer #{@options[:access_token]}",
+        "Content-type" => "application/json"
       }
-      headers = opts[:headers].merge(autorization_header)
 
       HTTPX.with(headers:).send(verb, full_url, body)
     end
