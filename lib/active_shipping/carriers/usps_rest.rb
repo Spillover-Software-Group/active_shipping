@@ -226,6 +226,8 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
+      raise body.inspect
+
       response = ssl_post(full_url, body, headers)
       raise response.inspect
       
