@@ -176,7 +176,7 @@ module ActiveShipping
       #   end
       # end
 
-      rates_estimates = request_body.rates.map do |rate|
+      rates_estimates = response.request_body.rates.map do |rate|
         {
           sku: rate["sku"],
           description: rate["description"],
