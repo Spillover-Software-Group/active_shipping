@@ -126,10 +126,10 @@ module ActiveShipping
         priceType: "COMMERCIAL"
       }
 
-      # request = http_request(
-      #   "https://api-cat.usps.com/prices/v3/base-rates/search",
-      #   body:,
-      # )
+      request = http_request(
+        "https://api-cat.usps.com/prices/v3/base-rates/search",
+        body,
+      )
 
       # raise request.inspect
 
