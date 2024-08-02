@@ -95,7 +95,54 @@ module ActiveShipping
     end
 
     def find_rates(origin, destination, packages, options = {})
-      raise "from USPSRest here origin: #{origin} and destination: #{destination} and packages: #{packages}"
+      raise "from USPSRest here origin: #{origin} and destination: #{destination} and packages: #{packages} and options: #{options}"
+
+      options = @options.merge(options)
+
+      origin = Location.from(origin)
+      destination = Location.from(destination)
+      packages = Array(packages)
+
+      domestic_codes = US_POSSESSIONS + ['US', nil]
+      if domestic_codes.include?(destination.country_code(:alpha2))
+        us_rates(origin, destination, packages, options)
+      else
+        world_rates(origin, destination, packages, options)
+      end
+    end
+
+    def us_rates(origin, destination, packages, options = {})
+      body = {
+        originZIPCode: "78705",
+        destinationZIPCode: "78210",
+        weight: 6.0,
+        length: 20.0,
+        width: 20.0,
+        height: 5.0,
+        mailClass: "PARCEL_SELECT",
+        processingCategory: "NON_MACHINABLE",
+        destinationEntryFacilityType: "NONE",
+        rateIndicator: "DR",
+        priceType: "COMMERCIAL"
+      }
+
+      request = http_client(
+        :post,
+        "https://api-cat.usps.com/prices/v3/base-rates/search",
+        body:,
+      )
+      raise request.inspect
+    end
+
+    private
+
+    def http_client(verb, full_url, body)
+      autorization_header = {
+        "Authorization" => "Bearer #{opts[:access_token]}"
+      }
+      headers = opts[:headers].merge(autorization_header)
+
+      HTTPX.with(headers:).send(verb, full_url, body)
     end
   end
 end
