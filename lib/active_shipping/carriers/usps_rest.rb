@@ -133,27 +133,27 @@ module ActiveShipping
 
       # raise request.inspect
 
-      request_body = {
-        "totalBasePrice": 11.92,
-        "rates": [
-            {
-                "SKU": "DUXR0XXXXC02130",
-                "description": "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
-                "priceType": "COMMERCIAL",
-                "price": 11.92,
-                "weight": 6,
-                "dimWeight": 13,
-                "fees": [],
-                "startDate": "2024-07-14",
-                "endDate": "",
-                "warnings": [],
-                "mailClass": "USPS_GROUND_ADVANTAGE",
-                "zone": "02"
-            }
-        ]
-      }
+      # request_body = {
+      #   "totalBasePrice": 11.92,
+      #   "rates": [
+      #       {
+      #           "SKU": "DUXR0XXXXC02130",
+      #           "description": "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+      #           "priceType": "COMMERCIAL",
+      #           "price": 11.92,
+      #           "weight": 6,
+      #           "dimWeight": 13,
+      #           "fees": [],
+      #           "startDate": "2024-07-14",
+      #           "endDate": "",
+      #           "warnings": [],
+      #           "mailClass": "USPS_GROUND_ADVANTAGE",
+      #           "zone": "02"
+      #       }
+      #   ]
+      # }
       
-      parse_rate_response(origin, destination, packages, request_body, options = {})
+      # parse_rate_response(origin, destination, packages, request_body, options = {})
     end
 
     protected
@@ -226,7 +226,7 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
-      raise body.inspect
+      raise "GUSTAVO #{body}".inspect
 
       response = ssl_post(full_url, body, headers)
       raise response.inspect
