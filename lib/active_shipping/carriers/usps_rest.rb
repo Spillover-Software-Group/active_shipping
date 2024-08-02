@@ -95,7 +95,7 @@ module ActiveShipping
     end
 
     def find_rates(origin, destination, packages, options = {})
-      raise "from USPSRest here origin: #{origin} and destination: #{destination} and packages: #{packages} and options: #{options}"
+      # raise "from USPSRest here origin: #{origin} and destination: #{destination} and packages: #{packages} and options: #{options}"
 
       options = @options.merge(options)
 
