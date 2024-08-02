@@ -176,6 +176,7 @@ module ActiveShipping
       #   end
       # end
 
+      raise response.inspect
       rates_estimates = response["rates"].map do |rate|
         {
           sku: rate["sku"],
