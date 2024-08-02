@@ -163,11 +163,11 @@ module ActiveShipping
       message = ''
       rate_hash = {}
 
-      # TODO: if error
-      if request.status === 201
-      else
-        rate_estimates = 
-      end
+      # # TODO: if error
+      # if request.status === 201
+      # else
+      #   rate_estimates = 
+      # end
     end
 
     private
