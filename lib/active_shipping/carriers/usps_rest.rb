@@ -138,7 +138,7 @@ module ActiveShipping
 
     def http_client(verb, full_url, body)
       autorization_header = {
-        "Authorization" => "Bearer #{opts[:access_token]}"
+        "Authorization" => "Bearer #{@options[:access_token]}"
       }
       headers = opts[:headers].merge(autorization_header)
 
