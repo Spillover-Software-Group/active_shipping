@@ -1,5 +1,3 @@
-require "httpx"
-
 module ActiveShipping
   class USPSRest < Carrier
     EventDetails = Struct.new(:description, :time, :zoneless_time, :location, :event_code)
@@ -129,22 +127,60 @@ module ActiveShipping
       }
 
       request = http_client(
-        :post,
         "https://api-cat.usps.com/prices/v3/base-rates/search",
         body:,
       )
-      raise request.inspect
+
+      # raise request.inspect
+
+      request_body = {
+        "totalBasePrice": 11.92,
+        "rates": [
+            {
+                "SKU": "DUXR0XXXXC02130",
+                "description": "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+                "priceType": "COMMERCIAL",
+                "price": 11.92,
+                "weight": 6,
+                "dimWeight": 13,
+                "fees": [],
+                "startDate": "2024-07-14",
+                "endDate": "",
+                "warnings": [],
+                "mailClass": "USPS_GROUND_ADVANTAGE",
+                "zone": "02"
+            }
+        ]
+      }
+      
+      parse_rate_response(origin, destination, packages, request_body, options = {})
+    end
+
+    protected
+
+    def parse_rate_response(origin, destination, packages, response, options = {})
+      success = true
+      message = ''
+      rate_hash = {}
+
+      # TODO: if error
+      if request.status === 201
+      else
+        rate_estimates = 
+      end
     end
 
     private
 
-    def http_client(verb, full_url, body)
+    def http_request(full_url, body)
       headers = {
         "Authorization" => "Bearer #{@options[:access_token]}",
         "Content-type" => "application/json"
       }
 
-      HTTPX.with(headers:).send(verb, full_url, body)
+      response = ssl_post(full_url, body, headers)
+      raise response.inspect
+      
     end
   end
 end
