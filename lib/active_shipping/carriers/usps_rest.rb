@@ -199,23 +199,23 @@ module ActiveShipping
     #   return rate_hash
     # rescue ::ActiveShipping::Error => e
 
-    def rates_from_response_node(response, packages, options)
-      rate_hash = {
-        "mailClass": {
-          service_name = rate["description"]
-          service_code = rate["mailClass"]
-          price = rate["price"]
-        }
-      }
+    # def rates_from_response_node(response, packages, options)
+    #   rate_hash = {
+    #     "mailClass": {
+    #       service_name = rate["description"]
+    #       service_code = rate["mailClass"]
+    #       price = rate["price"]
+    #     }
+    #   }
 
-      response.request_body["rates"].map do |rate|
-        rate_hash[:service_name] = rate["description"]
-        rate_hash[:service_code] = rate["mailClass"]
-        rate_hash[:price] = rate["price"]
-      end
+    #   response.request_body["rates"].map do |rate|
+    #     rate_hash[:service_name] = rate["description"]
+    #     rate_hash[:service_code] = rate["mailClass"]
+    #     rate_hash[:price] = rate["price"]
+    #   end
 
-      rate_hash
-    end
+    #   rate_hash
+    # end
 
     private
 
