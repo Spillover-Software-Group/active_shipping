@@ -53,6 +53,10 @@ module ActiveShipping
       :all => 'ALL'
     }
 
+    # SERVICE_TYPES = {
+    #   "PARCEL_SELECT" => 
+    # }
+
     # Array of U.S. possessions according to USPS: https://www.usps.com/ship/official-abbreviations.htm
     US_POSSESSIONS = %w(AS FM GU MH MP PW PR VI)
 
@@ -126,34 +130,34 @@ module ActiveShipping
         priceType: "COMMERCIAL"
       }
 
-      request = http_request(
-        "https://api-cat.usps.com/prices/v3/base-rates/search",
-        body,
-      )
+      # request = http_request(
+      #   "https://api-cat.usps.com/prices/v3/base-rates/search",
+      #   body,
+      # )
 
       # raise request.inspect
 
-      # request_body = {
-      #   "totalBasePrice": 11.92,
-      #   "rates": [
-      #       {
-      #           "SKU": "DUXR0XXXXC02130",
-      #           "description": "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
-      #           "priceType": "COMMERCIAL",
-      #           "price": 11.92,
-      #           "weight": 6,
-      #           "dimWeight": 13,
-      #           "fees": [],
-      #           "startDate": "2024-07-14",
-      #           "endDate": "",
-      #           "warnings": [],
-      #           "mailClass": "USPS_GROUND_ADVANTAGE",
-      #           "zone": "02"
-      #       }
-      #   ]
-      # }
+      request_body = {
+        "totalBasePrice": 11.92,
+        "rates": [
+            {
+                "SKU": "DUXR0XXXXC02130",
+                "description": "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+                "priceType": "COMMERCIAL",
+                "price": 11.92,
+                "weight": 6,
+                "dimWeight": 13,
+                "fees": [],
+                "startDate": "2024-07-14",
+                "endDate": "",
+                "warnings": [],
+                "mailClass": "USPS_GROUND_ADVANTAGE",
+                "zone": "02"
+            }
+        ]
+      }
       
-      # parse_rate_response(origin, destination, packages, request_body, options = {})
+      raise parse_rate_response(origin, destination, packages, request_body, options = {}).inspect
     end
 
     protected
@@ -177,13 +181,21 @@ module ActiveShipping
       # end
 
       rates_estimates = response[:rates].map do |rate|
-        {
-          sku: rate[:SKU],
-          description: rate[:description],
-          price: rate[:price],
-          service_code: rate[:mailClass]
-        }
+        RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+          :service_code => rate[:mailClass],
+          :total_price => rate[:price],
+          :currency => "USD",
+          :packages => packages,
+        )
+        # {
+        #   sku: rate[:SKU],
+        #   description: rate[:description],
+        #   price: rate[:price],
+        #   service_code: rate[:mailClass]
+        # }
       end
+      rate_estimates.reject! { |e| e.package_count != packages.length }
+      rate_estimates = rate_estimates.sort_by(&:total_price)
 
       RateResponse.new(success, message, response, rates: rates_estimates)
     end

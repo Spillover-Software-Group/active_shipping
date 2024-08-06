@@ -159,7 +159,7 @@ module ActiveShipping
 
       xml = commit(save_request(rate_request), (options[:test] || false))
 
-      raise parse_rate_response(origin, destination, packages, xml, options).inspect
+      parse_rate_response(origin, destination, packages, xml, options)
     end
 
     def find_tracking_info(tracking_number, options = {})
