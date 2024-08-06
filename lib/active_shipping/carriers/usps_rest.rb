@@ -145,6 +145,7 @@ module ActiveShipping
       message = ''
       rate_hash = {}
 
+      raise response.inspect
       if response["totalBasePrice"]
         rate_estimates = response["rates"].map do |rate|
           RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
