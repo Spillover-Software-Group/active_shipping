@@ -149,21 +149,21 @@ module ActiveShipping
 
       if response["totalBasePrice"]
         rate_estimates = response["rates"].map do |rate|
-          RateEstimate.new(
-            origin,
-            destination,
-            @@name,
-            "USPS GROUND_ADVANTAGE",
-            :package_rates => [{:weight => 6.0, :price => 11.92}],
-            :service_code => rate["mailClass"],
-            :currency => 'USD'
-          )
-          # RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+          # RateEstimate.new(
+          #   origin,
+          #   destination,
+          #   @@name,
+          #   "USPS GROUND_ADVANTAGE",
+          #   :package_rates => [{:weight => 6.0, :price => 11.92}],
           #   :service_code => rate["mailClass"],
-          #   :total_price => rate["price"],
-          #   :currency => "USD",
-          #   :packages => packages,
+          #   :currency => 'USD'
           # )
+          RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+            :service_code => rate["mailClass"],
+            :total_price => rate["price"],
+            :currency => "USD",
+            :packages => packages,
+          )
         end
 
         rate_estimates.reject! { |e| e.package_count != packages.length }
