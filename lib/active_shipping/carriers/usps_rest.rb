@@ -134,30 +134,8 @@ module ActiveShipping
         "https://api-cat.usps.com/prices/v3/base-rates/search",
         body.to_json,
       )
-
-      raise request.inspect
-
-      # request_body = {
-      #   "totalBasePrice": 11.92,
-      #   "rates": [
-      #       {
-      #           "SKU": "DUXR0XXXXC02130",
-      #           "description": "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
-      #           "priceType": "COMMERCIAL",
-      #           "price": 11.92,
-      #           "weight": 6,
-      #           "dimWeight": 13,
-      #           "fees": [],
-      #           "startDate": "2024-07-14",
-      #           "endDate": "",
-      #           "warnings": [],
-      #           "mailClass": "USPS_GROUND_ADVANTAGE",
-      #           "zone": "02"
-      #       }
-      #   ]
-      # }
       
-      # parse_rate_response(origin, destination, packages, request_body, options = {})
+      parse_rate_response(origin, destination, packages, request, options = {})
     end
 
     protected
@@ -167,68 +145,26 @@ module ActiveShipping
       message = ''
       rate_hash = {}
 
-      # TODO: if error
-      # if request.status === 201
-      # else
-      #   rates_estimates = request_body.rates.map do |rate|
-      #     {
-      #       sku: rate["sku"],
-      #       description: rate["USPS Ground Advantage Nonmachinable Dimensional Rectangular"],
-      #       price: rate["price"],
-      #       mail_class: rate["mailClass"]
-      #     }
-      #   end
-      # end
+      case response.code.to_i
+      when 200...300
+        rate_estimates = response[:rates].map do |rate|
+          RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+            :service_code => rate[:mailClass],
+            :total_price => rate[:price],
+            :currency => "USD",
+            :packages => packages,
+          )
+        end
 
-      rate_estimates = response[:rates].map do |rate|
-        RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
-          :service_code => rate[:mailClass],
-          :total_price => rate[:price],
-          :currency => "USD",
-          :packages => packages,
-        )
-        # {
-        #   sku: rate[:SKU],
-        #   description: rate[:description],
-        #   price: rate[:price],
-        #   service_code: rate[:mailClass]
-        # }
+        rate_estimates.reject! { |e| e.package_count != packages.length }
+        rate_estimates = rate_estimates.sort_by(&:total_price)
+      else
+        success = false
+        message = "An error occured. Please try again."
       end
-      rate_estimates.reject! { |e| e.package_count != packages.length }
-      rate_estimates = rate_estimates.sort_by(&:total_price)
 
       RateResponse.new(success, message, response, rates: rate_estimates)
     end
-
-    # begin
-    #   response = carrier.find_rates(origin, destination, shipment_packages, rate_options)
-    #   # turn this beastly array into a nice little hash
-    #   service_code_prefix_key = response.params.keys.first == 'IntlRateV2Response' ? :international : :domestic
-    #   rates = response.rates.collect do |rate|
-    #     service_code = "#{SERVICE_CODE_PREFIX[service_code_prefix_key]}:#{rate.service_code}"
-    #     [service_code, rate.price]
-    #   end
-    #   rate_hash = Hash[*rates.flatten]
-    #   return rate_hash
-    # rescue ::ActiveShipping::Error => e
-
-    # def rates_from_response_node(response, packages, options)
-    #   rate_hash = {
-    #     "mailClass": {
-    #       service_name = rate["description"]
-    #       service_code = rate["mailClass"]
-    #       price = rate["price"]
-    #     }
-    #   }
-
-    #   response.request_body["rates"].map do |rate|
-    #     rate_hash[:service_name] = rate["description"]
-    #     rate_hash[:service_code] = rate["mailClass"]
-    #     rate_hash[:price] = rate["price"]
-    #   end
-
-    #   rate_hash
-    # end
 
     private
 
@@ -238,9 +174,7 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
-      response = ssl_post(full_url, body, headers)
-      raise response.inspect
-      
+      ssl_post(full_url, body, headers)
     end
   end
 end
