@@ -157,7 +157,7 @@ module ActiveShipping
         ]
       }
       
-      raise parse_rate_response(origin, destination, packages, request_body, options = {}).inspect
+      parse_rate_response(origin, destination, packages, request_body, options = {})
     end
 
     protected
