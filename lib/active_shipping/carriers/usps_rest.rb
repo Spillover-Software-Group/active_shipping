@@ -180,7 +180,7 @@ module ActiveShipping
       #   end
       # end
 
-      rates_estimates = response[:rates].map do |rate|
+      rate_estimates = response[:rates].map do |rate|
         RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
           :service_code => rate[:mailClass],
           :total_price => rate[:price],
@@ -197,7 +197,7 @@ module ActiveShipping
       rate_estimates.reject! { |e| e.package_count != packages.length }
       rate_estimates = rate_estimates.sort_by(&:total_price)
 
-      RateResponse.new(success, message, response, rates: rates_estimates)
+      RateResponse.new(success, message, response, rates: rate_estimates)
     end
 
     # begin
