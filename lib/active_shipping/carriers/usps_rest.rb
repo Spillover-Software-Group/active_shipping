@@ -146,10 +146,10 @@ module ActiveShipping
       rate_hash = {}
 
       if response["totalBasePrice"]
-        rate_estimates = response[:rates].map do |rate|
+        rate_estimates = response["rates"].map do |rate|
           RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
-            :service_code => rate[:mailClass],
-            :total_price => rate[:price],
+            :service_code => rate["mailClass"],
+            :total_price => rate["price"],
             :currency => "USD",
             :packages => packages,
           )
