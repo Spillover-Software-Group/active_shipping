@@ -132,7 +132,7 @@ module ActiveShipping
 
       request = http_request(
         "https://api-cat.usps.com/prices/v3/base-rates/search",
-        body,
+        body.to_json,
       )
 
       raise request.inspect
