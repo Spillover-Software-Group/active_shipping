@@ -134,8 +134,10 @@ module ActiveShipping
         "https://api-cat.usps.com/prices/v3/base-rates/search",
         body.to_json,
       )
+
+      response = JSON.parse(request)
       
-      parse_rate_response(origin, destination, packages, request, options = {})
+      parse_rate_response(origin, destination, packages, response, options = {})
     end
 
     protected
@@ -145,7 +147,6 @@ module ActiveShipping
       message = ''
       rate_hash = {}
 
-      raise response.inspect
       if response["totalBasePrice"]
         rate_estimates = response["rates"].map do |rate|
           RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
