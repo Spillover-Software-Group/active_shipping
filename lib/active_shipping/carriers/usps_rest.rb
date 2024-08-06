@@ -145,6 +145,7 @@ module ActiveShipping
       message = ''
       rate_hash = {}
 
+      raise response.inspect
       case response.code.to_i
       when 200...300
         rate_estimates = response[:rates].map do |rate|
