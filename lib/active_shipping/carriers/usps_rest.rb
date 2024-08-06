@@ -99,6 +99,7 @@ module ActiveShipping
     end
 
     def find_rates(origin, destination, packages, options = {})
+    raise packages.inspect
       # raise "from USPSRest here origin: #{origin} and destination: #{destination} and packages: #{packages} and options: #{options}"
 
       options = @options.merge(options)
@@ -173,6 +174,7 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
+      raise rate_estimates.inspect
       RateResponse.new(success, message, response, rates: rate_estimates)
     end
 
