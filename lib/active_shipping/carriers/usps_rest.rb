@@ -159,7 +159,7 @@ module ActiveShipping
           #   :service_code => rate["mailClass"],
           #   :currency => 'USD'
           # )
-          RateEstimate.new(origin, destination, @@name, rate["mailClass"].gsub!(SERVICE_NAME_SUBSTITUTIONS, ''),
+          RateEstimate.new(origin, destination, @@name, service_name_for(rate["mailClass"]),
             :service_code => rate["mailClass"],
             :total_price => rate["price"],
             :currency => "USD",
@@ -177,9 +177,17 @@ module ActiveShipping
       RateResponse.new(success, message, response, rates: rate_estimates)
     end
 
-    # def service_name_for(origin, code)
+    def service_name_for(code)
+      # Replace underscores with spaces
+      formatted_name = code.gsub('_', ' ')
+        
+      # Capitalize each word except "USPS"
+      formatted_name = formatted_name.split.map.with_index do |word, index|
+        index == 0 && word.upcase == "USPS" ? word.upcase : word.capitalize
+      end.join(' ')
 
-    # end
+      formatted_name
+    end
 
     private
 
