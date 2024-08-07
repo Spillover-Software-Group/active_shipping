@@ -95,16 +95,31 @@ module ActiveShipping
       "WS" => "Western Samoa"
     }
 
-    SERVICE_TYPES = {
-      "PRIORITY_MAIL" => "USPS Priority Mail"
-    }
+    SERVICE_TYPES = [
+      "PARCEL_SELECT",
+      "PARCEL_SELECT_LIGHTWEIGHT",
+      "PRIORITY_MAIL_EXPRESS",
+      "PRIORITY_MAIL",
+      "FIRST-CLASS_PACKAGE_SERVICE",
+      "LIBRARY_MAIL",
+      "MEDIA_MAIL",
+      "BOUND_PRINTED_MATTER",
+      "USPS_CONNECT_LOCAL",
+      "USPS_CONNECT_MAIL",
+      "USPS_CONNECT_NEXT_DAY",
+      "USPS_CONNECT_REGIONAL",
+      "USPS_CONNECT_SAME_DAY",
+      "USPS_GROUND_ADVANTAGE",
+      "USPS_RETAIL_GROUND",
+    ]
 
     def requirements
       [:client_id, :client_secret, :access_token]
     end
 
     def find_rates(origin, destination, packages, options = {})
-      # raise "from USPSRest here origin: #{origin} and destination: #{destination} and packages: #{packages} and options: #{options}"
+      # raise,
+       "from USPSRest here origin: #{origin} and destination: #{destination} and packages: #{packages} and options: #{options}"
 
       options = @options.merge(options)
 
@@ -122,36 +137,66 @@ module ActiveShipping
 
     def us_rates(origin, destination, packages, options = {})
       # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
-      body = {
-        originZIPCode: origin.zip,
-        destinationZIPCode: destination.zip,
-        weight: 6.0,
-        length: 20.0,
-        width: 20.0,
-        height: 5.0,
-        mailClass: "PARCEL_SELECT",
-        processingCategory: "NON_MACHINABLE",
-        destinationEntryFacilityType: "NONE",
-        rateIndicator: "DR",
-        priceType: "COMMERCIAL"
-      }
+      rate_estimates = []
 
-      request = http_request(
-        "https://api-cat.usps.com/prices/v3/base-rates/search",
-        body.to_json,
-      )
+      packages.each do |package|
+        body = {
+          originZIPCode: origin.zip,
+          destinationZIPCode: destination.zip,
+          weight: package.weight,
+          length: package.inches(:length),
+          width: package.inches(:width),
+          height: package.inches(:height)
+          # mailClass: "PARCEL_SELECT",
+          # processingCategory: "NON_MACHINABLE",
+          # destinationEntryFacilityType: "NONE",
+          # rateIndicator: "DR",
+          # priceType: "COMMERCIAL"
+        }
 
-      response = JSON.parse(request)
+        request = http_request(
+          "https://api-cat.usps.com/prices/v3/total-rates/search",
+          body.to_json,
+        )
+
+        response = JSON.parse(request)
       
-      parse_rate_response(origin, destination, packages, response, options = {})
+        rate_estimates << {
+          package_id: package.id,
+          rates: package_rate_estimates(origin, destination, packages, response, options = {})
+        }
+      end
     end
 
     protected
 
+    def package_rate_estimates(origin, destination, packages, response, options = {})
+      SERVICE_TYPES.each do |service_type|
+        rates = data["rateOptions"].select do |option|
+          option["rates"].any? { |rate| rate["mailClass"] == service_type }
+        end
+
+        min_price_option = rates.min_by do |option|
+          option["rates"].map { |rate| rate["price"] }.min
+        end
+
+        raise min_price_option.inspect
+      end
+      
+      # if response["rateOptions"]
+      #   rate_estimates = response["rateOptions"].map do |rate|
+      #     RateEstimate.new(origin, destination, @@name, rate["mailClass"],
+      #       :service_code => rate["mailClass"],
+      #       :total_price => rate["price"],
+      #       :currency => "USD",
+      #       :packages => packages,
+      #     )
+      # end
+    end
+
     def parse_rate_response(origin, destination, packages, response, options = {})
       success = true
       message = ''
-      rate_hash = {}
 
       if response["totalBasePrice"]
         rate_estimates = response["rates"].map do |rate|
