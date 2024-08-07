@@ -173,7 +173,9 @@ module ActiveShipping
       RateResponse.new(success, message, response, rates: rate_estimates)
     end
 
-    def self.service_name_for_code(service_code)
+    private
+
+    def service_name_for_code(service_code)
       SERVICE_TYPES[service_code] || service_name_for(service_code)
     end
 
@@ -185,8 +187,6 @@ module ActiveShipping
 
       formatted_name
     end
-
-    private
 
     def http_request(full_url, body)
       headers = {
