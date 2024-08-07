@@ -95,6 +95,10 @@ module ActiveShipping
       "WS" => "Western Samoa"
     }
 
+    SERVICE_TYPES = {
+      "PRIORITY_MAIL" => "USPS Priority Mail"
+    }
+
     def requirements
       [:client_id, :client_secret, :access_token]
     end
@@ -167,6 +171,10 @@ module ActiveShipping
       end
 
       RateResponse.new(success, message, response, rates: rate_estimates)
+    end
+
+    def self.service_name_for_code(service_code)
+      SERVICE_TYPES[service_code] || service_name_for(service_code)
     end
 
     def service_name_for(code)
