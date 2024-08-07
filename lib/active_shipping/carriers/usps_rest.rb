@@ -117,7 +117,7 @@ module ActiveShipping
     end
 
     def us_rates(origin, destination, packages, options = {})
-      raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
+      # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
       body = {
         originZIPCode: origin.zip,
         destinationZIPCode: destination.zip,
@@ -151,15 +151,6 @@ module ActiveShipping
 
       if response["totalBasePrice"]
         rate_estimates = response["rates"].map do |rate|
-          # RateEstimate.new(
-          #   origin,
-          #   destination,
-          #   @@name,
-          #   "USPS GROUND_ADVANTAGE",
-          #   :package_rates => [{:weight => 6.0, :price => 11.92}],
-          #   :service_code => rate["mailClass"],
-          #   :currency => 'USD'
-          # )
           RateEstimate.new(origin, destination, @@name, service_name_for(rate["mailClass"]),
             :service_code => rate["mailClass"],
             :total_price => rate["price"],
@@ -179,10 +170,7 @@ module ActiveShipping
     end
 
     def service_name_for(code)
-      # Replace underscores with spaces
       formatted_name = code.gsub('_', ' ')
-        
-      # Capitalize each word except "USPS"
       formatted_name = formatted_name.split.map.with_index do |word, index|
         index == 0 && word.upcase == "USPS" ? word.upcase : word.capitalize
       end.join(' ')
