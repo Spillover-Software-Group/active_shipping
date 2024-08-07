@@ -155,7 +155,7 @@ module ActiveShipping
 
       if response["totalBasePrice"]
         rate_estimates = response["rates"].map do |rate|
-          RateEstimate.new(origin, destination, @@name, service_name_for(rate["mailClass"]),
+          RateEstimate.new(origin, destination, @@name, service_name_for_code(rate["mailClass"]),
             :service_code => rate["mailClass"],
             :total_price => rate["price"],
             :currency => "USD",
