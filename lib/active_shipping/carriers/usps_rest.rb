@@ -125,7 +125,7 @@ module ActiveShipping
         length: 20.0,
         width: 20.0,
         height: 5.0,
-        mailClass: "PARCEL_SELECT",
+        mailClass: "PRIORITY_MAIL",
         processingCategory: "NON_MACHINABLE",
         destinationEntryFacilityType: "NONE",
         rateIndicator: "DR",
