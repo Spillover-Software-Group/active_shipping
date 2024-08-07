@@ -117,7 +117,7 @@ module ActiveShipping
     end
 
     def us_rates(origin, destination, packages, options = {})
-      raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first.dimensions} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
+      raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
       body = {
         originZIPCode: origin.zip,
         destinationZIPCode: destination.zip,
