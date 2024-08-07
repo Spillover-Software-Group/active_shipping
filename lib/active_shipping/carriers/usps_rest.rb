@@ -53,9 +53,10 @@ module ActiveShipping
       :all => 'ALL'
     }
 
-    # SERVICE_TYPES = {
-    #   "PARCEL_SELECT" => 
-    # }
+    ESCAPING_AND_SYMBOLS = /&lt;\S*&gt;/
+    LEADING_USPS = /^USPS /
+    TRAILING_ASTERISKS = /\*+$/
+    SERVICE_NAME_SUBSTITUTIONS = /#{ESCAPING_AND_SYMBOLS}|#{LEADING_USPS}|#{TRAILING_ASTERISKS}/
 
     # Array of U.S. possessions according to USPS: https://www.usps.com/ship/official-abbreviations.htm
     US_POSSESSIONS = %w(AS FM GU MH MP PW PR VI)
@@ -158,7 +159,7 @@ module ActiveShipping
           #   :service_code => rate["mailClass"],
           #   :currency => 'USD'
           # )
-          RateEstimate.new(origin, destination, @@name, "USPS Ground Advantage Nonmachinable Dimensional Rectangular",
+          RateEstimate.new(origin, destination, @@name, rate["mailClass"].gsub!(SERVICE_NAME_SUBSTITUTIONS, ''),
             :service_code => rate["mailClass"],
             :total_price => rate["price"],
             :currency => "USD",
@@ -175,6 +176,10 @@ module ActiveShipping
 
       RateResponse.new(success, message, response, rates: rate_estimates)
     end
+
+    # def service_name_for(origin, code)
+
+    # end
 
     private
 
