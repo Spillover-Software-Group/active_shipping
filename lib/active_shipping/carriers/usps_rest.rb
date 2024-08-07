@@ -141,17 +141,12 @@ module ActiveShipping
 
       packages.each do |package|
         body = {
-          originZIPCode: origin.zip,
-          destinationZIPCode: destination.zip,
-          weight: package.weight,
-          length: package.inches(:length),
-          width: package.inches(:width),
-          height: package.inches(:height)
-          # mailClass: "PARCEL_SELECT",
-          # processingCategory: "NON_MACHINABLE",
-          # destinationEntryFacilityType: "NONE",
-          # rateIndicator: "DR",
-          # priceType: "COMMERCIAL"
+          originZIPCode: 78705,
+          destinationZIPCode: 78210,
+          weight:  1.0,
+          length: 2.0,
+          width: 2.0,
+          height: 1.0
         }
 
         request = http_request(
