@@ -136,7 +136,6 @@ module ActiveShipping
 
     def us_rates(origin, destination, packages, options = {})
       # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
-      rate_estimates = []
       success = true
       message = ''
 
@@ -163,6 +162,7 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
+      raise "rate_estimates #{rate_estimates}".inspect
       RateResponse.new(success, message, response, :rates => rate_estimates)
     end
 
