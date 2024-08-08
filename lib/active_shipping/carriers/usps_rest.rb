@@ -137,6 +137,8 @@ module ActiveShipping
     def us_rates(origin, destination, packages, options = {})
       # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
       rate_estimates = []
+      success = true
+      message = ''
 
       body = {
         originZIPCode: origin.zip,
@@ -154,13 +156,20 @@ module ActiveShipping
 
       response = JSON.parse(request)
 
-      rate_estimates << {
-        package_id: 12345,
-        rates: package_rate_estimates(origin, destination, packages, response, options = {})
-      }
+      if response["rateOptions"]
+        rate_estimates << {
+          package_id: 12345,
+          rates: package_rate_estimates(origin, destination, packages, response, options = {})
+        }
+  
+        rate_estimates.reject! { |e| e.package_count != packages.length }
+        rate_estimates = rate_estimates.sort_by(&:total_price)
+      else
+        success = false
+        message = "An error occured. Please try again."
+      end
 
-      raise "RATES ESTIMATES: #{rate_estimates}".inspect
-      
+      RateResponse.new(success, message, response, :rates => rate_estimates)
     end
 
     protected
@@ -185,42 +194,32 @@ module ActiveShipping
           :packages => packages
         )
       end
-      
-      # if response["rateOptions"]
-      #   rate_estimates = response["rateOptions"].map do |rate|
-      #     RateEstimate.new(origin, destination, @@name, rate["mailClass"],
-      #       :service_code => rate["mailClass"],
-      #       :total_price => rate["price"],
-      #       :currency => "USD",
-      #       :packages => packages,
-      #     )
-      # end
     end
 
-    def parse_rate_response(origin, destination, packages, response, options = {})
-      success = true
-      message = ''
-      rate_hash = {}
+    # def parse_rate_response(origin, destination, packages, response, options = {})
+    #   success = true
+    #   message = ''
+    #   rate_hash = {}
 
-      if response["totalBasePrice"]
-        rate_estimates = response["rates"].map do |rate|
-          RateEstimate.new(origin, destination, @@name, service_name_for_code(rate["mailClass"]),
-            :service_code => rate["mailClass"],
-            :total_price => rate["price"],
-            :currency => "USD",
-            :packages => packages,
-          )
-        end
+    #   if response["totalBasePrice"]
+    #     rate_estimates = response["rates"].map do |rate|
+    #       RateEstimate.new(origin, destination, @@name, service_name_for_code(rate["mailClass"]),
+    #         :service_code => rate["mailClass"],
+    #         :total_price => rate["price"],
+    #         :currency => "USD",
+    #         :packages => packages,
+    #       )
+    #     end
 
-        rate_estimates.reject! { |e| e.package_count != packages.length }
-        rate_estimates = rate_estimates.sort_by(&:total_price)
-      else
-        success = false
-        message = "An error occured. Please try again."
-      end
+    #     rate_estimates.reject! { |e| e.package_count != packages.length }
+    #     rate_estimates = rate_estimates.sort_by(&:total_price)
+    #   else
+    #     success = false
+    #     message = "An error occured. Please try again."
+    #   end
 
-      RateResponse.new(success, message, response, rates: rate_estimates)
-    end
+    #   RateResponse.new(success, message, response, rates: rate_estimates)
+    # end
 
     private
 
