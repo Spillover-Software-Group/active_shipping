@@ -180,6 +180,10 @@ module ActiveShipping
         end
         service_rate = min_price_option["rates"].first
 
+        if service_rate.nil?
+          raise "service_type #{service_type}".inspect
+        end
+
         RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
           :service_code => service_rate["mailClass"],
           :total_price => service_rate["price"],
