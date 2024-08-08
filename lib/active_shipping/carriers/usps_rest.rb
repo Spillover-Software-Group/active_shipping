@@ -155,6 +155,7 @@ module ActiveShipping
         )
 
         response = JSON.parse(request)
+        raise "RESPONSE #{response}".inspect
       
         rate_estimates << {
           package_id: package.id,
