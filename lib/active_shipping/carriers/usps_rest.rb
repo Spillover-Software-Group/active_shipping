@@ -50,11 +50,13 @@ module ActiveShipping
         body = {
           originZIPCode: origin.zip,
           destinationZIPCode: destination.zip,
-          weight: package.weight.split(" ").first,
+          weight: package.oz,
           length: package.inches(:length),
           width: package.inches(:width),
           height: package.inches(:height),
         }
+
+        raise "package.oz #{package.oz} and #{package}".inspect
 
         request = http_request(
           "https://api-cat.usps.com/prices/v3/total-rates/search",
