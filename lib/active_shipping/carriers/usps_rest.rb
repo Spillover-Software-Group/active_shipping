@@ -162,7 +162,6 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
-      raise "rate_estimates #{rate_estimates}".inspect
       RateResponse.new(success, message, response, :rates => rate_estimates)
     end
 
