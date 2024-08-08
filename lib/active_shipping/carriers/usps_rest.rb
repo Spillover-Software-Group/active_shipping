@@ -157,12 +157,12 @@ module ActiveShipping
 
       if response["rateOptions"]
         rate_estimates = package_rate_estimates(origin, destination, packages, response, options = {})
+        rate_estimates.compact!
       else
         success = false
         message = "An error occured. Please try again."
       end
 
-      raise "rate_estimates #{rate_estimates}".inspect
       RateResponse.new(success, message, response, :rates => rate_estimates)
     end
 
@@ -181,17 +181,12 @@ module ActiveShipping
         end
         service_rate = min_price_option["rates"].first
 
-        if service_rate.nil?
-          raise "service_type #{service_type}".inspect
-        end
-
-        service_rate
-        # RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
-        #   :service_code => service_rate["mailClass"],
-        #   :total_price => service_rate["price"],
-        #   :currency => "USD",
-        #   :packages => packages
-        # )
+        RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
+          :service_code => service_rate["mailClass"],
+          :total_price => service_rate["price"],
+          :currency => "USD",
+          :packages => packages
+        )
       end
     end
 
