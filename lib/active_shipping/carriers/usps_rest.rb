@@ -50,10 +50,10 @@ module ActiveShipping
         body = {
           originZIPCode: origin.zip,
           destinationZIPCode: destination.zip,
-          weight: 6.0,
-          length: 20.0,
-          width: 20.0,
-          height: 5.0,
+          weight: package.weight,
+          length: package.inches(:length),
+          width: package.inches(:width),
+          height: package.inches(:height),
         }
 
         request = http_request(
