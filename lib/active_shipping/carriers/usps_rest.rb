@@ -56,6 +56,8 @@ module ActiveShipping
           height: package.inches(:height),
         }
 
+        raise "the body #{body}".inspect
+
         request = http_request(
           "https://api-cat.usps.com/prices/v3/total-rates/search",
           body.to_json,
