@@ -95,23 +95,23 @@ module ActiveShipping
       "WS" => "Western Samoa"
     }
 
-    SERVICE_TYPES = [
-      "PARCEL_SELECT",
-      "PARCEL_SELECT_LIGHTWEIGHT",
-      "PRIORITY_MAIL_EXPRESS",
-      "PRIORITY_MAIL",
-      "FIRST-CLASS_PACKAGE_SERVICE",
-      "LIBRARY_MAIL",
-      "MEDIA_MAIL",
-      "BOUND_PRINTED_MATTER",
-      "USPS_CONNECT_LOCAL",
-      "USPS_CONNECT_MAIL",
-      "USPS_CONNECT_NEXT_DAY",
-      "USPS_CONNECT_REGIONAL",
-      "USPS_CONNECT_SAME_DAY",
-      "USPS_GROUND_ADVANTAGE",
-      "USPS_RETAIL_GROUND",
-    ]
+       SERVICE_TYPES = [
+        "PARCEL_SELECT",
+        "PARCEL_SELECT_LIGHTWEIGHT",
+        "PRIORITY_MAIL_EXPRESS",
+        "PRIORITY_MAIL",
+        "FIRST-CLASS_PACKAGE_SERVICE",
+        "LIBRARY_MAIL",
+        "MEDIA_MAIL",
+        "BOUND_PRINTED_MATTER",
+        "USPS_CONNECT_LOCAL",
+        "USPS_CONNECT_MAIL",
+        "USPS_CONNECT_NEXT_DAY",
+        "USPS_CONNECT_REGIONAL",
+        "USPS_CONNECT_SAME_DAY",
+        "USPS_GROUND_ADVANTAGE",
+        "USPS_RETAIL_GROUND",
+      ]
 
     def requirements
       [:client_id, :client_secret, :access_token]
@@ -136,35 +136,29 @@ module ActiveShipping
 
     def us_rates(origin, destination, packages, options = {})
       # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
-      success = true
-      message = ''
       rate_estimates = []
 
-      packages.each do |package|
-        body = {
-          originZIPCode: 78705,
-          destinationZIPCode: 78210,
-          weight:  1.0,
-          length: 2.0,
-          width: 2.0,
-          height: 1.0
-        }
+      body = {
+        originZIPCode: origin.zip,
+        destinationZIPCode: destination.zip,
+        weight: 6.0,
+        length: 20.0,
+        width: 20.0,
+        height: 5.0,
+      }
 
-        request = http_request(
-          "https://api-cat.usps.com/prices/v3/total-rates/search",
-          body.to_json,
-        )
+      request = http_request(
+        "https://api-cat.usps.com/prices/v3/total-rates/search",
+        body.to_json,
+      )
 
-        response = JSON.parse(request)
-        raise "RESPONSE #{request}".inspect
+      response = JSON.parse(request)
+
+      rate_estimates << {
+        package_id: package.id,
+        rates: package_rate_estimates(origin, destination, packages, response, options = {})
+      }
       
-        rate_estimates << {
-          package_id: package.id,
-          rates: package_rate_estimates(origin, destination, packages, response, options = {})
-        }
-      end
-
-      RateResponse.new(success, message, response, rates: rate_estimates)
     end
 
     protected
@@ -179,7 +173,7 @@ module ActiveShipping
           option["rates"].map { |rate| rate["price"] }.min
         end
 
-        raise min_price_option.inspect
+        raise "min_price_option #{min_price_option}".inspect
       end
       
       # if response["rateOptions"]
