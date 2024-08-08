@@ -129,10 +129,15 @@ module ActiveShipping
         length: 20.0,
         width: 20.0,
         height: 5.0,
+        mailClass: "PARCEL_SELECT",
+        processingCategory: "NON_MACHINABLE",
+        destinationEntryFacilityType: "NONE",
+        rateIndicator: "DR",
+        priceType: "COMMERCIAL"
       }
 
       request = http_request(
-        "https://api-cat.usps.com/prices/v3/total-rates/search",
+        "https://api-cat.usps.com/prices/v3/base-rates/search",
         body.to_json,
       )
 
