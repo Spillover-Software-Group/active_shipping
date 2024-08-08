@@ -161,9 +161,6 @@ module ActiveShipping
           package_id: 12345,
           rates: package_rate_estimates(origin, destination, packages, response, options = {})
         }
-  
-        rate_estimates.reject! { |e| e.rates.package_count != packages.length }
-        rate_estimates = rate_estimates.sort_by(&:total_price)
       else
         success = false
         message = "An error occured. Please try again."
