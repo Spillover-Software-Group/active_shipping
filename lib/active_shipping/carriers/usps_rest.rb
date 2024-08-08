@@ -32,6 +32,7 @@ module ActiveShipping
     end
 
     def find_rates(origin, destination, packages, options = {})
+    raise "the packs and #{packages}".inspect
       options = @options.merge(options)
 
       origin = Location.from(origin)
@@ -46,6 +47,7 @@ module ActiveShipping
       success = true
       message = ''
 
+      raise "packages and #{packages}".inspect
       body = {
         originZIPCode: origin.zip,
         destinationZIPCode: destination.zip,
