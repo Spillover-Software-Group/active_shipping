@@ -37,7 +37,7 @@ module ActiveShipping
       origin = Location.from(origin)
       destination = Location.from(destination)
       packages = Array(packages)
-
+      
       us_rates(origin, destination, packages, options)
     end
 
@@ -46,34 +46,13 @@ module ActiveShipping
       success = true
       message = ''
 
-      packages.each do |package|
-        body = {
-          originZIPCode: origin.zip,
-          destinationZIPCode: destination.zip,
-          weight: package.oz.to_f,
-          length: package.inches(:length).to_f,
-          width: package.inches(:width).to_f,
-          height: package.inches(:height).to_f,
-        }
-
-        raise "the body #{body}".inspect
-
-        request = http_request(
-          "https://api-cat.usps.com/prices/v3/total-rates/search",
-          body.to_json,
-        )
-
-        response = JSON.parse(request)
-        raise "response #{response}".inspect
-      end
-
       body = {
         originZIPCode: origin.zip,
         destinationZIPCode: destination.zip,
-        weight: 6.0,
-        length: 20.0,
-        width: 20.0,
-        height: 5.0,
+        weight: package.oz.to_f,
+        length: package.inches(:length).to_f,
+        width: package.inches(:width).to_f,
+        height: package.inches(:height).to_f,
       }
 
       request = http_request(
