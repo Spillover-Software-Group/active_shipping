@@ -56,7 +56,7 @@ module ActiveShipping
           height: package.inches(:height),
         }
 
-        raise "package #{package.inches(:height)}".inspect
+        raise "package #{package.inches(:height)} /  #{package.inches(:length)} /  #{package.inches(:width)} /  #{package&.weight}".inspect
 
         request = http_request(
           "https://api-cat.usps.com/prices/v3/total-rates/search",
