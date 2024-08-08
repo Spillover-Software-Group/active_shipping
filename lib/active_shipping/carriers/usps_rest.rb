@@ -165,7 +165,7 @@ module ActiveShipping
 
     def package_rate_estimates(origin, destination, packages, response, options = {})
       SERVICE_TYPES.each do |service_type|
-        rates = data["rateOptions"].select do |option|
+        rates = response["rateOptions"].select do |option|
           option["rates"].any? { |rate| rate["mailClass"] == service_type }
         end
 
