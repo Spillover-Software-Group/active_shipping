@@ -162,6 +162,7 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
+      raise "rate_estimates #{rate_estimates}".inspect
       RateResponse.new(success, message, response, :rates => rate_estimates)
     end
 
@@ -184,12 +185,13 @@ module ActiveShipping
           raise "service_type #{service_type}".inspect
         end
 
-        RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
-          :service_code => service_rate["mailClass"],
-          :total_price => service_rate["price"],
-          :currency => "USD",
-          :packages => packages
-        )
+        service_rate
+        # RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
+        #   :service_code => service_rate["mailClass"],
+        #   :total_price => service_rate["price"],
+        #   :currency => "USD",
+        #   :packages => packages
+        # )
       end
     end
 
