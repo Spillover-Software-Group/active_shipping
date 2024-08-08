@@ -157,10 +157,7 @@ module ActiveShipping
       response = JSON.parse(request)
 
       if response["rateOptions"]
-        rate_estimates << {
-          package_id: 12345,
-          rates: package_rate_estimates(origin, destination, packages, response, options = {})
-        }
+        rate_estimates = package_rate_estimates(origin, destination, packages, response, options = {})
       else
         success = false
         message = "An error occured. Please try again."
