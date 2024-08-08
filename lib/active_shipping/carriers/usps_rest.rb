@@ -158,6 +158,8 @@ module ActiveShipping
         package_id: 12345,
         rates: package_rate_estimates(origin, destination, packages, response, options = {})
       }
+
+      raise "RATES ESTIMATES: #{rate_estimates}".inspect
       
     end
 
@@ -169,11 +171,19 @@ module ActiveShipping
           option["rates"].any? { |rate| rate["mailClass"] == service_type }
         end
 
+        next if rates.nil? || rates.empty?
+
         min_price_option = rates.min_by do |option|
           option["rates"].map { |rate| rate["price"] }.min
         end
+        service_rate = min_price_option["rates"].first
 
-        raise "min_price_option #{min_price_option}".inspect
+        RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
+          :service_code => service_rate["mailClass"],
+          :total_price => service_rate["price"],
+          :currency => "USD",
+          :packages => packages
+        )
       end
       
       # if response["rateOptions"]
