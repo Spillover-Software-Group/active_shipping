@@ -136,6 +136,8 @@ module ActiveShipping
 
     def us_rates(origin, destination, packages, options = {})
       # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
+      success = true
+      message = ''
       rate_estimates = []
 
       packages.each do |package|
@@ -161,6 +163,8 @@ module ActiveShipping
           rates: package_rate_estimates(origin, destination, packages, response, options = {})
         }
       end
+
+      RateResponse.new(success, message, response, rates: rate_estimates)
     end
 
     protected
