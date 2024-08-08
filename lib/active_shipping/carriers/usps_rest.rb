@@ -155,7 +155,7 @@ module ActiveShipping
       response = JSON.parse(request)
 
       rate_estimates << {
-        package_id: package.id,
+        package_id: 12345,
         rates: package_rate_estimates(origin, destination, packages, response, options = {})
       }
       
