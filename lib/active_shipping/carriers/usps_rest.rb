@@ -46,23 +46,47 @@ module ActiveShipping
       # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
       success = true
       message = ''
+      packages_rates_estimates = []
 
-      raise "packages and #{packages}".inspect
-      body = {
-        originZIPCode: origin.zip,
-        destinationZIPCode: destination.zip,
-        weight: package.oz.to_f,
-        length: package.inches(:length).to_f,
-        width: package.inches(:width).to_f,
-        height: package.inches(:height).to_f,
-      }
+      packages.each do |package|
+        body = {
+          originZIPCode: origin.zip,
+          destinationZIPCode: destination.zip,
+          weight: package.oz.to_f,
+          length: package.inches(:length).to_f,
+          width: package.inches(:width).to_f,
+          height: package.inches(:height).to_f,
+        }
+  
+        request = http_request(
+          "https://api-cat.usps.com/prices/v3/total-rates/search",
+          body.to_json,
+        )
+  
+        response = JSON.parse(request)
 
-      request = http_request(
-        "https://api-cat.usps.com/prices/v3/total-rates/search",
-        body.to_json,
-      )
+        packages_rates_estimates << {
+          package: package.id,
+          rates: package_rate_estimates(origin, destination, packages, response, options = {})
+        }
+      end
 
-      response = JSON.parse(request)
+      raise package_rate_estimates.inspect
+      # body = {
+      #   originZIPCode: origin.zip,
+      #   destinationZIPCode: destination.zip,
+      #   weight: package.oz.to_f,
+      #   length: package.inches(:length).to_f,
+      #   width: package.inches(:width).to_f,
+      #   height: package.inches(:height).to_f,
+      # }
+
+      # request = http_request(
+      #   "https://api-cat.usps.com/prices/v3/total-rates/search",
+      #   body.to_json,
+      # )
+
+      # response = JSON.parse(request)
 
       if response["rateOptions"]
         rate_estimates = package_rate_estimates(origin, destination, packages, response, options = {})
