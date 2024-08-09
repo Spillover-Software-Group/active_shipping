@@ -60,7 +60,6 @@ module ActiveShipping
             height: package.inches(:height).to_f,
           }
     
-          raise "FROM HEERREEEE".inspect
           request = http_request(
             "https://api-cat.usps.com/prices/v3/total-rates/search",
             body.to_json,
@@ -154,43 +153,43 @@ module ActiveShipping
 
       raise "the response #{response}".inspect
       raise "#{response == "Failed with 401 Unauthorized"} from response".inspect
-      if response == "Failed with 401 Unauthorized"
-        client_id = @options[:client_id]
-        client_secret = @options[:client_secret]
-        config = Spree::ActiveShippingConfiguration.new
+      # if response == "Failed with 401 Unauthorized"
+      #   client_id = @options[:client_id]
+      #   client_secret = @options[:client_secret]
+      #   config = Spree::ActiveShippingConfiguration.new
 
-        if client_id && client_secret
-          begin
-            params = {
-              "client_id": client_id,
-              "client_secret": client_secret, 
-              "grant_type": "client_credentials"
-            }
+      #   if client_id && client_secret
+      #     begin
+      #       params = {
+      #         "client_id": client_id,
+      #         "client_secret": client_secret, 
+      #         "grant_type": "client_credentials"
+      #       }
 
-            new_token_response = ssl_post(
-              "#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token",
-              params.to_json,
-            )
+      #       new_token_response = ssl_post(
+      #         "#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token",
+      #         params.to_json,
+      #       )
 
-            json = JSON.parse(new_token_response)
-            @options[:access_token] = json["access_token"]
+      #       json = JSON.parse(new_token_response)
+      #       @options[:access_token] = json["access_token"]
 
-            config.usps_access_token = @options[:access_token]
+      #       config.usps_access_token = @options[:access_token]
 
-            response = ssl_post(full_url, body, headers)
-          rescue ActiveUtils::ResponseError
-            config.ups_access_token = nil
-            config.ups_refresh_token = nil
-            response
-          end
+      #       response = ssl_post(full_url, body, headers)
+      #     rescue ActiveUtils::ResponseError
+      #       config.ups_access_token = nil
+      #       config.ups_refresh_token = nil
+      #       response
+      #     end
           
-        else
-          config.usps_access_token = nil
-          response
-        end
-      else
-        response
-      end
+      #   else
+      #     config.usps_access_token = nil
+      #     response
+      #   end
+      # else
+      #   response
+      # end
     end
   end
 end
