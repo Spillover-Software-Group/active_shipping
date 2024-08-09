@@ -66,9 +66,8 @@ module ActiveShipping
             test: options[:test]
           )
     
+          raise "THE RESPONSE FROM HERE #{request}".inspect
           response = JSON.parse(request)
-
-          raise "THE RESPONSE FROM HERE #{response}".inspect
   
           package = {
             package: index,
