@@ -158,13 +158,12 @@ module ActiveShipping
         client_secret = @options[:client_secret]
         config = Spree::ActiveShippingConfiguration.new
 
-        raise "#{client_id} and secret #{client_secret} and the config #{config}".inspect
         if client_id && client_secret
           begin
             params = {
-              "client_id": client_id,
-              "client_secret": client_secret, 
-              "grant_type": "client_credentials"
+              client_id: client_id,
+              client_secret: client_secret, 
+              grant_type: "client_credentials"
             }
 
             new_token_response = ssl_post(
@@ -172,6 +171,7 @@ module ActiveShipping
               params.to_json,
             )
 
+            raise "resp #{new_token_response}".inspect
             json = JSON.parse(new_token_response)
 
             raise "new token #{json}".inspect
