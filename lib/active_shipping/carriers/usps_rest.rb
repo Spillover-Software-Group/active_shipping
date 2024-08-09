@@ -80,7 +80,7 @@ module ActiveShipping
         packages_rates << package
       end
 
-      raise "package_rate_estimates #{packages_rates}".inspect
+      raise "package_rate_estimates #{rate_estimates(packages_rates)}".inspect
       # body = {
       #   originZIPCode: origin.zip,
       #   destinationZIPCode: destination.zip,
@@ -110,6 +110,18 @@ module ActiveShipping
 
     protected
 
+    def rate_estimates(packages_rates)
+      total_prices = Hash.new(0)
+
+      packages.each do |package|
+        package[:rates].each do |rate|
+          total_prices[rate[:mail_class]] += rate[:price]
+        end
+      end
+
+      total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
+    end
+
     def package_rate_estimates(origin, destination, packages, response, options = {})
       SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
@@ -123,12 +135,16 @@ module ActiveShipping
         end
         service_rate = min_price_option["rates"].first
 
-        RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
-          :service_code => service_rate["mailClass"],
-          :total_price => service_rate["price"],
-          :currency => "USD",
-          :packages => packages
-        )
+        {
+          mail_class: service_rate["mailClass"],
+          price: service_rate["price"]
+        }
+        # RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
+        #   :service_code => service_rate["mailClass"],
+        #   :total_price => service_rate["price"],
+        #   :currency => "USD",
+        #   :packages => packages
+        # )
       end
     end
 
