@@ -171,14 +171,16 @@ module ActiveShipping
             )
 
             json = JSON.parse(new_token_response)
+
+            raise "new token #{json}".inspect
             @options[:access_token] = json["access_token"]
 
             config.usps_access_token = @options[:access_token]
 
             request = ssl_post(full_url, body, headers)
           rescue ActiveUtils::ResponseError
-            config.ups_access_token = nil
-            config.ups_refresh_token = nil
+            config.usps_access_token = nil
+            config.usps_refresh_token = nil
             request
           end
         else
