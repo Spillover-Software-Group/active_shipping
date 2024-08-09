@@ -92,7 +92,7 @@ module ActiveShipping
 
       # response = JSON.parse(request)
 
-      if response["rateOptions"]
+      if packages_rates.any?
         rate_estimates = rate_estimates_test(packages_rates).map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
@@ -111,7 +111,7 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
-      RateResponse.new(success, message, response, :rates => rate_estimates)
+      RateResponse.new(success, message, packages_rates, :rates => rate_estimates)
     end
 
     protected
