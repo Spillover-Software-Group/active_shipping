@@ -51,14 +51,14 @@ module ActiveShipping
         body = {
           originZIPCode: origin.zip,
           destinationZIPCode: destination.zip,
-          # weight: package.oz.to_f,
-          # length: package.inches(:length).to_f,
-          # width: package.inches(:width).to_f,
-          # height: package.inches(:height).to_f,
-          weight: 2.0,
-          length: 10.0,
-          width: 20.0,
-          height: 20.0
+          weight: package.oz.to_f,
+          length: package.inches(:length).to_f,
+          width: package.inches(:width).to_f,
+          height: package.inches(:height).to_f,
+          # weight: 2.0,
+          # length: 10.0,
+          # width: 20.0,
+          # height: 20.0
         }
   
         request = http_request(
@@ -71,14 +71,14 @@ module ActiveShipping
 
         package = {
           package: index,
-          rates: package_rate_estimates(origin, destination, packages, response, options = {})
+          rates: generate_package_rates(response)
         }
 
         packages_rates << package
       end
 
       if packages_rates.any?
-        rate_estimates = rate_estimates_test(packages_rates).map do |service|
+        rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
             :total_price => service[:price],
@@ -86,20 +86,21 @@ module ActiveShipping
             :packages => packages
           )
         end        
-        # rate_estimates = package_rate_estimates(origin, destination, packages, response, options = {})
-        # rate_estimates.compact!
       else
         success = false
         message = "An error occured. Please try again."
       end
 
-
+      # RateResponse expectes a response object as third argument, but we don't have a single
+      # response, so we are passing anything to fill the gap
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
     end
 
     protected
 
-    def rate_estimates_test(packages_rates)
+    def generate_packages_rates_estimates(packages_rates)
+      # We sum all the prices from the same service for each package
+      # and return a single cost for each service
       total_prices = Hash.new(0)
 
       packages_rates.each do |package|
@@ -111,8 +112,10 @@ module ActiveShipping
       total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
     end
 
-    def package_rate_estimates(origin, destination, packages, response, options = {})
-      test = SERVICE_TYPES.map do |service_type|
+    def generate_package_rates(response)
+      # USPS returns more than one from the same service
+      # we find the minimun price for a service and return it
+      services_rates = SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
           option["rates"].any? { |rate| rate["mailClass"] == service_type }
         end
@@ -128,56 +131,12 @@ module ActiveShipping
           mail_class: service_rate["mailClass"],
           price: service_rate["price"]
         }
-        # RateEstimate.new(origin, destination, @@name, service_rate["mailClass"],
-        #   :service_code => service_rate["mailClass"],
-        #   :total_price => service_rate["price"],
-        #   :currency => "USD",
-        #   :packages => packages
-        # )
       end
 
-      test.compact!
+      services_rates.compact!
     end
-
-    # def parse_rate_response(origin, destination, packages, response, options = {})
-    #   success = true
-    #   message = ''
-    #   rate_hash = {}
-
-    #   if response["totalBasePrice"]
-    #     rate_estimates = response["rates"].map do |rate|
-    #       RateEstimate.new(origin, destination, @@name, service_name_for_code(rate["mailClass"]),
-    #         :service_code => rate["mailClass"],
-    #         :total_price => rate["price"],
-    #         :currency => "USD",
-    #         :packages => packages,
-    #       )
-    #     end
-
-    #     rate_estimates.reject! { |e| e.package_count != packages.length }
-    #     rate_estimates = rate_estimates.sort_by(&:total_price)
-    #   else
-    #     success = false
-    #     message = "An error occured. Please try again."
-    #   end
-
-    #   RateResponse.new(success, message, response, rates: rate_estimates)
-    # end
 
     private
-
-    def service_name_for_code(service_code)
-      SERVICE_TYPES[service_code] || service_name_for(service_code)
-    end
-
-    def service_name_for(code)
-      formatted_name = code.gsub('_', ' ')
-      formatted_name = formatted_name.split.map.with_index do |word, index|
-        index == 0 && word.upcase == "USPS" ? word.upcase : word.capitalize
-      end.join(' ')
-
-      formatted_name
-    end
 
     def http_request(full_url, body)
       headers = {
