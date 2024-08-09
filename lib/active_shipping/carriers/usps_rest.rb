@@ -67,12 +67,13 @@ module ActiveShipping
         )
   
         response = JSON.parse(request)
-        raise "the response #{response}".inspect
 
-        packages_rates_estimates << {
+        test = {
           package: index,
           rates: package_rate_estimates(origin, destination, packages, response, options = {})
         }
+
+        raise "test #{test}".inspect
       end
 
       raise package_rate_estimates.inspect
