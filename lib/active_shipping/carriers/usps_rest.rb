@@ -109,8 +109,7 @@ module ActiveShipping
       end
 
 
-      raise "rates_estimates #{rate_estimates}".inspect
-      RateResponse.new(success, message, packages_rates, :rates => rate_estimates)
+      RateResponse.new(success, message, nil, :rates => rate_estimates)
     end
 
     protected
