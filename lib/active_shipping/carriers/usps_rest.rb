@@ -46,6 +46,7 @@ module ActiveShipping
       success = true
       message = ''
       packages_rates = []
+      first_response = {}
 
       packages.each_with_index do |package, index|
         body = {
@@ -67,6 +68,7 @@ module ActiveShipping
         )
   
         response = JSON.parse(request)
+        first_response = response
 
         package = {
           package: index,
@@ -109,7 +111,7 @@ module ActiveShipping
       end
 
 
-      RateResponse.new(success, message, nil, :rates => rate_estimates)
+      RateResponse.new(success, message, first_response, :rates => rate_estimates)
     end
 
     protected
