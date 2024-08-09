@@ -93,7 +93,6 @@ module ActiveShipping
       # response = JSON.parse(request)
 
       if packages_rates.any?
-        raise "the GUSTAVO #{rate_estimates_test(packages_rates)}".inspect
         rate_estimates = rate_estimates_test(packages_rates).map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
@@ -102,6 +101,8 @@ module ActiveShipping
             :packages => packages
           )
         end
+
+        raise "the gustavo camello #{rate_estimates}".inspect
 
         
         
