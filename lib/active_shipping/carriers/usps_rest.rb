@@ -150,6 +150,8 @@ module ActiveShipping
       }
 
       response = ssl_post(full_url, body, headers)
+
+      raise "the response #{response}".inspect
       raise "#{response == "Failed with 401 Unauthorized"} from response".inspect
       if response == "Failed with 401 Unauthorized"
         client_id = @options[:client_id]
