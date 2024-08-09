@@ -179,7 +179,6 @@ module ActiveShipping
 
             json = JSON.parse(new_token_response)
 
-            raise "new token #{json}".inspect
             @options[:access_token] = json["access_token"]
 
             config.usps_access_token = @options[:access_token]
