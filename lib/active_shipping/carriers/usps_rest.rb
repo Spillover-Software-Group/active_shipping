@@ -65,8 +65,7 @@ module ActiveShipping
             body.to_json,
             test: options[:test]
           )
-    
-          raise "THE RESPONSE FROM HERE #{request}".inspect
+
           response = JSON.parse(request)
   
           package = {
@@ -144,12 +143,13 @@ module ActiveShipping
 
     private
 
-    def http_request(full_url, body, test = false)
+    def http_request(full_url, body, test = true)
       headers = {
         "Authorization" => "Bearer #{@options[:access_token]}",
         "Content-type" => "application/json"
       }
 
+      raise "FROM THSSSS #{full_url, body}".inspect
       response = ssl_post(full_url, body, headers)
 
       raise "the response #{response}".inspect
