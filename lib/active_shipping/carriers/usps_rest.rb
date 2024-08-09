@@ -113,7 +113,6 @@ module ActiveShipping
     def rate_estimates_test(packages_rates)
       total_prices = Hash.new(0)
 
-      raise "package_rates #{packages_rates}".inspect
       packages_rates.each do |package|
         package[:rates].each do |rate|
           total_prices[rate[:mail_class]] += rate[:price]
@@ -124,7 +123,7 @@ module ActiveShipping
     end
 
     def package_rate_estimates(origin, destination, packages, response, options = {})
-      SERVICE_TYPES.map do |service_type|
+      test = SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
           option["rates"].any? { |rate| rate["mailClass"] == service_type }
         end
@@ -147,6 +146,8 @@ module ActiveShipping
         #   :packages => packages
         # )
       end
+
+      test.compact!
     end
 
     # def parse_rate_response(origin, destination, packages, response, options = {})
