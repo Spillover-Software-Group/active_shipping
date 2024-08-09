@@ -67,6 +67,8 @@ module ActiveShipping
           )
     
           response = JSON.parse(request)
+
+          raise "THE RESPONSE FROM HERE #{response}".inspect
   
           package = {
             package: index,
