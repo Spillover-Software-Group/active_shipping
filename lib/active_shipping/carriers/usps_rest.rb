@@ -47,7 +47,7 @@ module ActiveShipping
       message = ''
       packages_rates_estimates = []
 
-      packages.each do |package|
+      packages.each_with_index do |package, index|
         body = {
           originZIPCode: origin.zip,
           destinationZIPCode: destination.zip,
@@ -65,7 +65,7 @@ module ActiveShipping
         response = JSON.parse(request)
 
         packages_rates_estimates << {
-          package: package.id,
+          package: index,
           rates: package_rate_estimates(origin, destination, packages, response, options = {})
         }
       end
