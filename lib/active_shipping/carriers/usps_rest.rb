@@ -181,7 +181,7 @@ module ActiveShipping
 
             @options[:access_token] = json["access_token"]
 
-            raise "#{@options} from options".inspect
+            raise "#{json["access_token"]} from options".inspect
             config.usps_access_token = @options[:access_token]
 
             request = ssl_post(full_url, body, headers)
