@@ -152,6 +152,7 @@ module ActiveShipping
       request = ssl_post(full_url, body, headers)
 
     rescue ActiveUtils::ResponseError => e
+      raise "error #{e} and message #{e&.message}".inspect
       if e.message =="Failed with 401 Unauthorized"
         client_id = @options[:client_id]
         client_secret = @options[:client_secret]
