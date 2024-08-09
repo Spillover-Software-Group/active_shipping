@@ -80,7 +80,7 @@ module ActiveShipping
         packages_rates << package
       end
 
-      raise "package_rate_estimates #{rate_estimates(packages_rates)}".inspect
+      raise "package_rate_estimates #{rate_estimates_test(packages_rates)}".inspect
       # body = {
       #   originZIPCode: origin.zip,
       #   destinationZIPCode: destination.zip,
@@ -110,9 +110,10 @@ module ActiveShipping
 
     protected
 
-    def rate_estimates(packages_rates)
+    def rate_estimates_test(packages_rates)
       total_prices = Hash.new(0)
 
+      raise "package_rates #{package_rates}".inspect
       packages_rates.each do |package|
         package[:rates].each do |rate|
           total_prices[rate[:mail_class]] += rate[:price]
