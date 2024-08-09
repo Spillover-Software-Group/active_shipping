@@ -6,6 +6,9 @@ module ActiveShipping
     cattr_reader :name
     @@name = "USPS"
 
+    TEST_URL = 'https://api-cat.usps.com'
+    LIVE_URL = 'https://api.usps.com'
+
     # Array of U.S. possessions according to USPS: https://www.usps.com/ship/official-abbreviations.htm
     US_POSSESSIONS = %w(AS FM GU MH MP PW PR VI)
 
@@ -60,6 +63,7 @@ module ActiveShipping
           request = http_request(
             "https://api-cat.usps.com/prices/v3/total-rates/search",
             body.to_json,
+            test: options[:test]
           )
     
           response = JSON.parse(request)
@@ -139,7 +143,7 @@ module ActiveShipping
 
     private
 
-    def http_request(full_url, body)
+    def http_request(full_url, body, test = false)
       headers = {
         "Authorization" => "Bearer #{@options[:access_token]}",
         "Content-type" => "application/json"
@@ -147,7 +151,43 @@ module ActiveShipping
 
       response = ssl_post(full_url, body, headers)
 
-      raise "FROM HTTP REQUQEST #{response}".inspect
+      if response == "Failed with 401 Unauthorized"
+        client_id = @options[:client_id]
+        client_secret = @options[:client_secret]
+        config = Spree::ActiveShippingConfiguration.new
+
+        if client_id && client_secret
+          begin
+            params = {
+              "client_id": client_id,
+              "client_secret": client_secret, 
+              "grant_type": "client_credentials"
+            }
+
+            new_token_response = ssl_post(
+              "#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token",
+              params.to_json,
+            )
+
+            json = JSON.parse(new_token_response)
+            @options[:access_token] = json["access_token"]
+
+            config.usps_access_token = @options[:access_token]
+            
+            response = ssl_post(full_url, body, headers)
+          rescue ActiveUtils::ResponseError
+            config.ups_access_token = nil
+            config.ups_refresh_token = nil
+            response
+          end
+          
+        else
+          config.usps_access_token = nil
+          response
+        end
+      else
+        response
+      end
     end
   end
 end
