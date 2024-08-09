@@ -111,6 +111,7 @@ module ActiveShipping
     protected
 
     def rate_estimates_test(packages_rates)
+      raise "the packages #{package_rates}".inspect
       total_prices = Hash.new(0)
 
       packages_rates.each do |package|
