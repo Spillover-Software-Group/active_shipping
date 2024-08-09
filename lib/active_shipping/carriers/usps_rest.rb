@@ -45,7 +45,7 @@ module ActiveShipping
       # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
       success = true
       message = ''
-      packages_rates_estimates = []
+      packages_rates = []
 
       packages.each_with_index do |package, index|
         body = {
@@ -77,10 +77,10 @@ module ActiveShipping
           rates: package_rate_estimates(origin, destination, packages, response, options = {})
         }
 
-        packages_rates_estimates << package
+        packages_rates << package
       end
 
-      raise "package_rate_estimates #{package_rate_estimates}".inspect
+      raise "package_rate_estimates #{packages_rates}".inspect
       # body = {
       #   originZIPCode: origin.zip,
       #   destinationZIPCode: destination.zip,
