@@ -68,10 +68,6 @@ module ActiveShipping
   
         response = JSON.parse(request)
 
-        unless response
-          raise "repsonse #{response}".inspect
-        end
-
         package = {
           package: index,
           rates: package_rate_estimates(origin, destination, packages, response, options = {})
@@ -80,7 +76,6 @@ module ActiveShipping
         packages_rates << package
       end
 
-      raise "package_rate_estimates #{rate_estimates_test(packages_rates)}".inspect
       # body = {
       #   originZIPCode: origin.zip,
       #   destinationZIPCode: destination.zip,
@@ -98,8 +93,19 @@ module ActiveShipping
       # response = JSON.parse(request)
 
       if response["rateOptions"]
-        rate_estimates = package_rate_estimates(origin, destination, packages, response, options = {})
-        rate_estimates.compact!
+        rate_estimates = rate_estimates_test(packages_rates).map do |service|
+          RateEstimate.new(origin, destination, @@name, service[:mail_class],
+            :service_code => service[:mail_class],
+            :total_price => service[:price],
+            :currency => "USD",
+            :packages => packages
+          )
+        end
+
+        
+        
+        # rate_estimates = package_rate_estimates(origin, destination, packages, response, options = {})
+        # rate_estimates.compact!
       else
         success = false
         message = "An error occured. Please try again."
@@ -111,7 +117,6 @@ module ActiveShipping
     protected
 
     def rate_estimates_test(packages_rates)
-      raise "the packages #{packages_rates}".inspect
       total_prices = Hash.new(0)
 
       packages_rates.each do |package|
