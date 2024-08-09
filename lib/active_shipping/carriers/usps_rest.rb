@@ -177,7 +177,6 @@ module ActiveShipping
               headers
             )
 
-            raise "resp #{new_token_response}".inspect
             json = JSON.parse(new_token_response)
 
             raise "new token #{json}".inspect
