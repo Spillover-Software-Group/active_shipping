@@ -150,13 +150,11 @@ module ActiveShipping
       }
 
       request = ssl_post(full_url, body, headers)
-      json = JSON.parse(request)
 
-      raise "the response #{request} and json #{json}".inspect
-      raise "#{request == "Failed with 401 Unauthorized"} from request".inspect
-
+    rescue ActiveUtils::ResponseError => e
+      raise "error #{e} and message #{e.message}".inspect
       
-      # if response == "Failed with 401 Unauthorized"
+      # if request == "Failed with 401 Unauthorized"
       #   client_id = @options[:client_id]
       #   client_secret = @options[:client_secret]
       #   config = Spree::ActiveShippingConfiguration.new
