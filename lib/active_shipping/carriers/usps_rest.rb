@@ -68,15 +68,19 @@ module ActiveShipping
   
         response = JSON.parse(request)
 
-        test = {
+        unless response
+          raise "repsonse #{response}".inspect
+        end
+
+        package = {
           package: index,
           rates: package_rate_estimates(origin, destination, packages, response, options = {})
         }
 
-        raise "test #{test}".inspect
+        packages_rates_estimates << package
       end
 
-      raise package_rate_estimates.inspect
+      raise "package_rate_estimates #{package_rate_estimates}".inspect
       # body = {
       #   originZIPCode: origin.zip,
       #   destinationZIPCode: destination.zip,
