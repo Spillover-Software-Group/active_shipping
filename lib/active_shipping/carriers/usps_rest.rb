@@ -166,8 +166,6 @@ module ActiveShipping
               grant_type: "client_credentials"
             }
 
-            raise "params = #{"#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token"}".inspect
-
             new_token_response = ssl_post(
               "#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token",
               params.to_json,
