@@ -46,8 +46,8 @@ module ActiveShipping
       message = ''
       packages_rates = []
 
-      begin
-        packages.each_with_index do |package, index|
+      packages.each_with_index do |package, index|
+        begin
           body = {
             originZIPCode: origin.zip,
             destinationZIPCode: destination.zip,
@@ -70,9 +70,10 @@ module ActiveShipping
           }
   
           packages_rates << package
-      rescue StandardError => e
-        packages_rates = []
-        break
+        rescue StandardError => e
+          packages_rates = []
+          break
+        end
       end
 
       if packages_rates.any?
