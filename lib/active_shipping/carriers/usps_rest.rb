@@ -71,6 +71,8 @@ module ActiveShipping
   
           packages_rates << package
         rescue StandardError => e
+          # If for any reason the request fails, we return an error and display the message
+          # "We are unable to calculate shipping rates for the selected items" to the user
           packages_rates = []
           break
         end
@@ -143,7 +145,7 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
-      ssl_post(full_url, body, headers)
+      raise ssl_post(full_url, body, headers).inspect
     end
   end
 end
