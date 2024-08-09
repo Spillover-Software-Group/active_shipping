@@ -67,6 +67,7 @@ module ActiveShipping
         )
   
         response = JSON.parse(request)
+        raise "the response #{response}".inspect
 
         packages_rates_estimates << {
           package: index,
