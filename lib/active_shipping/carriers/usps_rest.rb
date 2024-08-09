@@ -47,7 +47,7 @@ module ActiveShipping
       packages_rates = []
 
       packages.each_with_index do |package, index|
-        begin
+        # begin
           body = {
             originZIPCode: origin.zip,
             destinationZIPCode: destination.zip,
