@@ -45,42 +45,35 @@ module ActiveShipping
       success = true
       message = ''
       packages_rates = []
-      first_response = {}
 
-      packages.each_with_index do |package, index|
-        body = {
-          originZIPCode: origin.zip,
-          destinationZIPCode: destination.zip,
-          weight: package.oz.to_f,
-          length: package.inches(:length).to_f,
-          width: package.inches(:width).to_f,
-          height: package.inches(:height).to_f,
-          # weight: 2.0,
-          # length: 10.0,
-          # width: 20.0,
-          # height: 20.0
-        }
+      begin
+        packages.each_with_index do |package, index|
+          body = {
+            originZIPCode: origin.zip,
+            destinationZIPCode: destination.zip,
+            weight: package.oz.to_f,
+            length: package.inches(:length).to_f,
+            width: package.inches(:width).to_f,
+            height: package.inches(:height).to_f,
+          }
+    
+          request = http_request(
+            "https://api-cat.usps.com/prices/v3/total-rates/search",
+            body.to_json,
+          )
+    
+          response = JSON.parse(request)
   
-        # request = http_request(
-        #   "https://api-cat.usps.com/prices/v3/total-rates/search",
-        #   body.to_json,
-        # )
+          package = {
+            package: index,
+            rates: generate_package_rates(response)
+          }
   
-        # response = JSON.parse(request)
-        # first_response = response
-
-        # package = {
-        #   package: index,
-        #   rates: generate_package_rates(response)
-        # }
-
-        # packages_rates << package
-
-        packages_rates << body
-
+          packages_rates << package
+      rescue StandardError => e
+        packages_rates = []
+        break
       end
-
-      raise "from here #{packages_rates}".inspect
 
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
