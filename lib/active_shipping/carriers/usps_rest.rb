@@ -61,21 +61,26 @@ module ActiveShipping
           # height: 20.0
         }
   
-        request = http_request(
-          "https://api-cat.usps.com/prices/v3/total-rates/search",
-          body.to_json,
-        )
+        # request = http_request(
+        #   "https://api-cat.usps.com/prices/v3/total-rates/search",
+        #   body.to_json,
+        # )
   
-        response = JSON.parse(request)
-        first_response = response
+        # response = JSON.parse(request)
+        # first_response = response
 
-        package = {
-          package: index,
-          rates: generate_package_rates(response)
-        }
+        # package = {
+        #   package: index,
+        #   rates: generate_package_rates(response)
+        # }
 
-        packages_rates << package
+        # packages_rates << package
+
+        packages_rates << body
+
       end
+
+      raise "from here #{packages_rates}".inspect
 
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
