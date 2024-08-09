@@ -150,7 +150,7 @@ module ActiveShipping
       }
 
       response = ssl_post(full_url, body, headers)
-
+      raise "#{response == "Failed with 401 Unauthorized"} from response".inspect
       if response == "Failed with 401 Unauthorized"
         client_id = @options[:client_id]
         client_secret = @options[:client_secret]
@@ -173,7 +173,7 @@ module ActiveShipping
             @options[:access_token] = json["access_token"]
 
             config.usps_access_token = @options[:access_token]
-            
+
             response = ssl_post(full_url, body, headers)
           rescue ActiveUtils::ResponseError
             config.ups_access_token = nil
