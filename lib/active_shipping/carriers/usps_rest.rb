@@ -149,13 +149,13 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
-      response = ssl_post(full_url, body, headers)
+      request = ssl_post(full_url, body, headers)
+      json = JSON.parse(request)
 
-      raise "the response #{response}".inspect
-      raise "#{response == "Failed with 401 Unauthorized"} from response".inspect
+      raise "the response #{request} and json #{json}".inspect
+      raise "#{request == "Failed with 401 Unauthorized"} from request".inspect
 
-
-      response
+      
       # if response == "Failed with 401 Unauthorized"
       #   client_id = @options[:client_id]
       #   client_secret = @options[:client_secret]
