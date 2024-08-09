@@ -42,7 +42,6 @@ module ActiveShipping
     end
 
     def us_rates(origin, destination, packages, options = {})
-      # raise "widht: #{packages.first.inches(:width)} / dimentions: #{packages.first} / weigth: #{packages.first.weight} packages: #{packages} / count: #{packages.count}".inspect
       success = true
       message = ''
       packages_rates = []
@@ -78,22 +77,6 @@ module ActiveShipping
         packages_rates << package
       end
 
-      # body = {
-      #   originZIPCode: origin.zip,
-      #   destinationZIPCode: destination.zip,
-      #   weight: package.oz.to_f,
-      #   length: package.inches(:length).to_f,
-      #   width: package.inches(:width).to_f,
-      #   height: package.inches(:height).to_f,
-      # }
-
-      # request = http_request(
-      #   "https://api-cat.usps.com/prices/v3/total-rates/search",
-      #   body.to_json,
-      # )
-
-      # response = JSON.parse(request)
-
       if packages_rates.any?
         rate_estimates = rate_estimates_test(packages_rates).map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
@@ -111,7 +94,7 @@ module ActiveShipping
       end
 
 
-      RateResponse.new(success, message, first_response, :rates => rate_estimates)
+      RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
     end
 
     protected
