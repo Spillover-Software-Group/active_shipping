@@ -113,7 +113,7 @@ module ActiveShipping
     def rate_estimates(packages_rates)
       total_prices = Hash.new(0)
 
-      packages.each do |package|
+      packages_rates.each do |package|
         package[:rates].each do |rate|
           total_prices[rate[:mail_class]] += rate[:price]
         end
