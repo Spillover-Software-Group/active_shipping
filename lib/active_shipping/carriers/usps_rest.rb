@@ -100,12 +100,7 @@ module ActiveShipping
             :currency => "USD",
             :packages => packages
           )
-        end
-
-        raise "the gustavo camello #{rate_estimates}".inspect
-
-        
-        
+        end        
         # rate_estimates = package_rate_estimates(origin, destination, packages, response, options = {})
         # rate_estimates.compact!
       else
@@ -113,6 +108,8 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
+
+      raise "rates_estimates #{rates_estimates}".inspect
       RateResponse.new(success, message, packages_rates, :rates => rate_estimates)
     end
 
