@@ -50,7 +50,7 @@ module ActiveShipping
       packages_rates = []
 
       packages.each_with_index do |package, index|
-        # begin
+        begin
           body = {
             originZIPCode: origin.zip,
             destinationZIPCode: destination.zip,
@@ -72,16 +72,14 @@ module ActiveShipping
             package: index,
             rates: generate_package_rates(response)
           }
-
-          raise "PACKAGE FIRST #{package}".inspect
          
           packages_rates << package
-        # rescue StandardError => e
-        #   # If for any reason the request fails, we return an error and display the message
-        #   # "We are unable to calculate shipping rates for the selected items" to the user
-        #   packages_rates = []
-        #   break
-        # end
+        rescue StandardError => e
+          # If for any reason the request fails, we return an error and display the message
+          # "We are unable to calculate shipping rates for the selected items" to the user
+          packages_rates = []
+          break
+        end
       end
 
       
@@ -187,6 +185,7 @@ module ActiveShipping
             config.usps_access_token = @options[:access_token]
 
             request = ssl_post(full_url, body, "Authorization" => "Bearer #{json["access_token"]}")
+            request
           rescue ActiveUtils::ResponseError
             config.usps_access_token = nil
             config.usps_refresh_token = nil
