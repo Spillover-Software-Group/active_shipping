@@ -73,7 +73,9 @@ module ActiveShipping
             rates: generate_package_rates(response)
           }
   
-          raise "the packages_rates #{package}".inspect
+          if index == 1
+            raise "the packages_rates #{package}".inspect
+          end
           packages_rates << package
         # rescue StandardError => e
         #   # If for any reason the request fails, we return an error and display the message
