@@ -153,8 +153,9 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
+      raise "the REQEUST : #{body}".inspect
       request = ssl_post(full_url, body, headers)
-      raise "the REQEUST : #{request}".inspect
+      
 
     rescue ActiveUtils::ResponseError => e
       if e.message == "Failed with 401 Unauthorized"
