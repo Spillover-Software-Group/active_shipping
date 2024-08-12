@@ -183,9 +183,7 @@ module ActiveShipping
 
             config.usps_access_token = @options[:access_token]
 
-            raise "#{config} and #{config.ups_access_token}".inspect
-
-            request = ssl_post(full_url, body, headers)
+            request = ssl_post(full_url, body, "Authorization" => "Bearer #{json["access_token"]}")
           rescue ActiveUtils::ResponseError
             config.usps_access_token = nil
             config.usps_refresh_token = nil
