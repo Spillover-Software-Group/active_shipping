@@ -73,6 +73,7 @@ module ActiveShipping
             rates: generate_package_rates(response)
           }
   
+          raise "the packages_rates #{package}".inspect
           packages_rates << package
         # rescue StandardError => e
         #   # If for any reason the request fails, we return an error and display the message
@@ -82,7 +83,7 @@ module ActiveShipping
         # end
       end
 
-      raise "the packages_rates #{packages_rates}".inspect
+      
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
@@ -101,9 +102,6 @@ module ActiveShipping
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
-
-    rescue Error => e
-      raise "the error message #{e.message}"
     end
 
     protected
