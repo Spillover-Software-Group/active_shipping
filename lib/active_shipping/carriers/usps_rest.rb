@@ -68,14 +68,16 @@ module ActiveShipping
 
           response = JSON.parse(request)
   
+          if index == 1
+            raise "quantos packa #{packages.count} and #{packages} and the packages_rates #{response}".inspect
+          end
+
           package = {
             package: index,
             rates: generate_package_rates(response)
           }
   
-          if index == 1
-            raise "the packages_rates #{response}".inspect
-          end
+         
           packages_rates << package
         # rescue StandardError => e
         #   # If for any reason the request fails, we return an error and display the message
