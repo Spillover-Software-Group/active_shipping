@@ -153,7 +153,7 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
-      raise "the REQEUST : #{body}".inspect
+      raise "the REQEUST : #{headers}".inspect
       request = ssl_post(full_url, body, headers)
       
 
