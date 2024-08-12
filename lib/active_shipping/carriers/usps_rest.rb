@@ -66,11 +66,11 @@ module ActiveShipping
             test: options[:test]
           )
 
-          response = JSON.parse(request)
-  
           if index == 1
-            raise "quantos packa #{packages.count} and #{packages} and the packages_rates #{response}".inspect
+            raise "quantos packa #{packages.count} and #{packages} and the packages_rates #{request}".inspect
           end
+
+          response = JSON.parse(request)
 
           package = {
             package: index,
