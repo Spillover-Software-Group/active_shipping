@@ -72,6 +72,8 @@ module ActiveShipping
             package: index,
             rates: generate_package_rates(response)
           }
+
+          raise "PACKAGE FIRST #{package}".inspect
          
           packages_rates << package
         # rescue StandardError => e
@@ -178,19 +180,13 @@ module ActiveShipping
               headers
             )
 
-            raise "the request from new token #{new_token_response}".inspect
             json = JSON.parse(new_token_response)
 
             @options[:access_token] = json["access_token"]
 
-           
-
             config.usps_access_token = @options[:access_token]
 
-            
-
             request = ssl_post(full_url, body, "Authorization" => "Bearer #{json["access_token"]}")
-            
           rescue ActiveUtils::ResponseError
             config.usps_access_token = nil
             config.usps_refresh_token = nil
