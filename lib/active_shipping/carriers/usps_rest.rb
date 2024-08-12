@@ -74,7 +74,7 @@ module ActiveShipping
           }
   
           if index == 1
-            raise "the packages_rates #{package}".inspect
+            raise "the packages_rates #{response}".inspect
           end
           packages_rates << package
         # rescue StandardError => e
