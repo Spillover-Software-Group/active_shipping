@@ -100,6 +100,9 @@ module ActiveShipping
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
+
+    rescue Error => e
+      raise "the error message #{e.message}"
     end
 
     protected
@@ -181,9 +184,11 @@ module ActiveShipping
 
             @options[:access_token] = json["access_token"]
 
+            raise "the request from new token #{json}".inspect
+
             config.usps_access_token = @options[:access_token]
 
-            raise "the request from new token #{json}".inspect
+            
 
             request = ssl_post(full_url, body, "Authorization" => "Bearer #{json["access_token"]}")
             
