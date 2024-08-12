@@ -66,14 +66,14 @@ module ActiveShipping
             test: options[:test]
           )
 
-          raise "from US_RATES request #{request}".inspect
-
           response = JSON.parse(request)
   
           package = {
             package: index,
             rates: generate_package_rates(response)
           }
+
+          raise "from US_RATES request #{package}".inspect
   
           packages_rates << package
         # rescue StandardError => e
