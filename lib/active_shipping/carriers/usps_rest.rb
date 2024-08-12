@@ -72,8 +72,6 @@ module ActiveShipping
             package: index,
             rates: generate_package_rates(response)
           }
-
-          raise "from US_RATES request #{package}".inspect
   
           packages_rates << package
         # rescue StandardError => e
