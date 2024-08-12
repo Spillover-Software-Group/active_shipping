@@ -179,11 +179,12 @@ module ActiveShipping
               headers
             )
 
+            raise "the request from new token #{new_token_response}".inspect
             json = JSON.parse(new_token_response)
 
             @options[:access_token] = json["access_token"]
 
-            raise "the request from new token #{json}".inspect
+           
 
             config.usps_access_token = @options[:access_token]
 
