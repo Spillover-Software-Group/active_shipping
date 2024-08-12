@@ -51,6 +51,7 @@ module ActiveShipping
 
       packages.each_with_index do |package, index|
         # begin
+          next if index == 0
           body = {
             originZIPCode: origin.zip,
             destinationZIPCode: destination.zip,
@@ -65,10 +66,6 @@ module ActiveShipping
             body.to_json,
             test: options[:test]
           )
-
-          if index == 1
-            raise "quantos packa #{packages.count} and #{packages} and the packages_rates #{request}".inspect
-          end
 
           response = JSON.parse(request)
 
@@ -157,6 +154,7 @@ module ActiveShipping
       }
 
       request = ssl_post(full_url, body, headers)
+      raise "the REQEUST : #{request}".inspect
 
     rescue ActiveUtils::ResponseError => e
       if e.message == "Failed with 401 Unauthorized"
