@@ -82,6 +82,7 @@ module ActiveShipping
         # end
       end
 
+      raise "the packages_rates #{packages_rates}".inspect
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
@@ -96,7 +97,7 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
-      raise "the rates_estimates #{rate_estimates}".inspect
+      
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
