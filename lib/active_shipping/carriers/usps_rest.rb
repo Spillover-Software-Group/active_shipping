@@ -61,7 +61,7 @@ module ActiveShipping
           }
     
           request = http_request(
-            "https://api-cat.usps.com/prices/v3/total-rates/search",
+            "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
             body.to_json,
             test: options[:test]
           )
@@ -144,7 +144,7 @@ module ActiveShipping
 
     private
 
-    def http_request(full_url, body, test = true)
+    def http_request(full_url, body, test = false)
       headers = {
         "Authorization" => "Bearer #{@options[:access_token]}",
         "Content-type" => "application/json"
