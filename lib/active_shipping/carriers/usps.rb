@@ -14,7 +14,7 @@ module ActiveShipping
     self.ssl_version = :TLSv1_2
 
     cattr_reader :name
-    @@name = "USPS"
+    @@name = "USPS Legacy"
 
     LIVE_DOMAIN = 'production.shippingapis.com'
     LIVE_RESOURCE = 'ShippingAPI.dll'
