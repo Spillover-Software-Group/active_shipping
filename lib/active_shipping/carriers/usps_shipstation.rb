@@ -38,7 +38,7 @@ module ActiveShipping
               length: package.inches(:length).to_f,
               width: package.inches(:width).to_f,
               height: package.inches(:height).to_f,
-            }
+            },
             residential: true
           }
     
