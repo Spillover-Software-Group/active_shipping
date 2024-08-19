@@ -31,7 +31,7 @@ module ActiveShipping
             toPostalCode: destination.zip,
             weight: {
               value: package.oz.to_f,
-              :units: "ounces"
+              units: "ounces"
             },
             dimensions: {
               units: "inches",
