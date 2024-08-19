@@ -22,7 +22,7 @@ module ActiveShipping
       packages_rates = []
 
       packages.each_with_index do |package, index|
-        begin
+        # begin
           body = {
             carrier_code: "stamps_com",
             fromPostalCode: origin.zip,
@@ -33,16 +33,21 @@ module ActiveShipping
               value: package.oz.to_f,
               :units: "ounces"
             },
-            dimentions:
-            length: package.inches(:length).to_f,
-            width: package.inches(:width).to_f,
-            height: package.inches(:height).to_f,
+            dimensions: {
+              units: "inches",
+              length: package.inches(:length).to_f,
+              width: package.inches(:width).to_f,
+              height: package.inches(:height).to_f,
+            }
+            residential: true
           }
     
           request = http_request(
             "#{LIVE_URL}/shipments/getrates",
             body.to_json,
           )
+
+          raise "the request #{request}".inspect
 
           response = JSON.parse(request)
 
@@ -52,11 +57,11 @@ module ActiveShipping
           }
          
           packages_rates << package
-        rescue StandardError => e
-          # If for any reason the request fails, we return an error and display the message
-          # "We are unable to calculate shipping rates for the selected items" to the user
-          packages_rates = []
-          break
+        # rescue StandardError => e
+        #   # If for any reason the request fails, we return an error and display the message
+        #   # "We are unable to calculate shipping rates for the selected items" to the user
+        #   packages_rates = []
+        #   break
         end
       end
 
@@ -73,7 +78,13 @@ module ActiveShipping
       end
 
       def credentials_base64
-        credentials = "#{options[:api_key]}:#{options[:api_secret]}"
+        api_key = "d0dbd6c655cd42d8a987fad03783a6b2"
+        api_secret = "7b060e70eab94224bec70b5650def3d1"
+
+        credentials = "#{api_key}:#{api_secret}"
+
+
+        # credentials = "#{options[:api_key]}:#{options[:api_secret]}"
         Base64.strict_encode64(credentials)
       end
 
