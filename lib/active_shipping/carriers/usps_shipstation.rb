@@ -94,7 +94,7 @@ module ActiveShipping
 
     def generate_package_rates(response)
       service_rates = response.map do |service_type|
-        raise "first service tyoe test = #{service_type["serviceName"]}".inspect
+        raise "first service tyoe test = #{":#{service_type["serviceName"]}"}".inspect
         {
           mail_class: SERVICE_MAIL_CLASSES[":#{service_type["serviceName"]}"],
           price: service_type["shipmentCost"]
