@@ -1,5 +1,5 @@
 module ActiveShipping
-  class UPSShipstation < USPSShipstation
+  class UPSShipstation < Shipstation
     def requirements
       [:api_key, :api_secret]
     end
