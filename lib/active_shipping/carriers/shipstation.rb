@@ -1,7 +1,7 @@
 module ActiveShipping
   class Shipstation < Carrier
     cattr_reader :name
-    @@name = "USPS Shipstation"
+    @@name = "Shipstation"
 
     LIVE_URL = "https://ssapi.shipstation.com"
 
