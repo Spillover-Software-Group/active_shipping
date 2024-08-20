@@ -81,6 +81,7 @@ module ActiveShipping
           raise "THE PACKAGE #{package} and totoal #{packages.count}".inspect
           packages_rates << package
         rescue StandardError => e
+          raise "error #{e} and message #{e&.message}".inspect
           # If for any reason the request fails, we return an error and display the message
           # "We are unable to calculate shipping rates for the selected items" to the user
           packages_rates = []
