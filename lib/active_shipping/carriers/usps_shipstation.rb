@@ -46,7 +46,7 @@ module ActiveShipping
       packages_rates = []
 
       packages.each_with_index do |package, index|
-        begin
+        # begin
           body = {
             carrierCode: "stamps_com",
             fromPostalCode: origin.zip,
