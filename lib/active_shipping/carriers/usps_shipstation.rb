@@ -1,5 +1,5 @@
 module ActiveShipping
-  class USPSShipstation < Carriers::Shipstation
+  class USPSShipstation < ActiveShipping::Shipstation
     cattr_reader :name
     @@name = "USPS Shipstation"
 
