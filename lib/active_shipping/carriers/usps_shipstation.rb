@@ -88,6 +88,7 @@ module ActiveShipping
       end
 
       if packages_rates.any?
+        raise "the rates #{packages_rates}".inspect
         rate_estimates = packages_rates.map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
