@@ -27,7 +27,7 @@ module ActiveShipping
             carrier_code: "stamps_com",
             fromPostalCode: origin.zip,
             toState: origin.state,
-            toCountry: origin.country[:codes].first[:value],
+            toCountry: origin.country_code,
             toPostalCode: destination.zip,
             weight: {
               value: package.oz.to_f,
@@ -73,8 +73,6 @@ module ActiveShipping
         "Authorization" => "Basic #{credentials_base64}",
         "Content-type" => "application/json"
       }
-
-      raise "the body = #{body} and fullURL = #{full_url}".inspect
 
       request = ssl_post(full_url, body, headers)
       request
