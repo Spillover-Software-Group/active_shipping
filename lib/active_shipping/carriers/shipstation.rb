@@ -3,7 +3,9 @@ module ActiveShipping
     cattr_reader :name
     @@name = "Shipstation"
 
-    # LIVE_URL = "https://ssapi.shipstation.com"
+    LIVE_URL = ""
+
+    SERVICE_MAIL_CLASSES = {}
 
     # SERVICE_MAIL_CLASSES = {
     #   "USPS First Class Mail - Letter": "USPS_FIRST_CLASS_MAIL_LETTER",
