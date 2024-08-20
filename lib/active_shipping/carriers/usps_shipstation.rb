@@ -24,7 +24,7 @@ module ActiveShipping
       packages.each_with_index do |package, index|
         # begin
           body = {
-            carrier_code: "stamps_com",
+            carrierCode: "stamps_com",
             fromPostalCode: origin.zip,
             toState: origin.state,
             toCountry: origin.country_code,
