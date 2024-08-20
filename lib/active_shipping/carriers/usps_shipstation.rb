@@ -87,7 +87,7 @@ module ActiveShipping
         end
       end
 
-      raise "THE RESULT FROM HERE #{package_rates}".inspect
+      raise "THE RESULT FROM HERE #{packages_rates}".inspect
     end
 
     private
