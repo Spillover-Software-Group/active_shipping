@@ -7,27 +7,26 @@ module ActiveShipping
     LIVE_URL = "https://ssapi.shipstation.com"
 
     SERVICE_MAIL_CLASSES = {
-      "USPS First Class Mail - Letter": "usps_first_class_mail_letter",
-      "USPS First Class Mail - Large Envelope or Flat": "usps_first_class_mail_large_envelope",
-      "USPS First Class Mail - Package": "usps_first_class_mail_package",
-
-      "USPS Priority Mail - Package": "usps_first_class_mail_package",
-      "USPS Priority Mail - Medium Flat Rate Box": "usps_first_class_mail_medium_flat",
-      "USPS Priority Mail - Small Flat Rate Box": "usps_first_class_mail_small_flat",
-      "USPS Priority Mail - Large Flat Rate Box": "usps_first_class_mail_large_flat",
-      "USPS Priority Mail - Flat Rate Envelope": "usps_first_class_mail_envolepe_flat",
-      "USPS Priority Mail - Flat Rate Padded Envelope": "usps_first_class_mail_padded_envelope",
-      "USPS Priority Mail - Legal Flat Rate Envelope": "usps_first_class_mail_legal_flat",
-
-
-      "USPS Priority Mail Express - Package": "usps_first_class_mail_package",
-      "USPS Priority Mail Express - Flat Rate Envelope": "usps_first_class_mail_flat_envelope",
-      "USPS Priority Mail Express - Flat Rate Padded Envelope": "usps_first_class_mail_padded_envelope",
-      "USPS Priority Mail Express - Legal Flat Rate Envelope": "usps_first_class_mail_legal_envelope",
-
-      "USPS Media Mail - Package": "usps_media_mail",
-      "USPS Parcel Select Ground - Package": "usps_parcel_select",
-      "USPS Ground Advantage - Package": "usps_ground_advantage",
+      "USPS First Class Mail - Letter" => "USPS_FIRST_CLASS_MAIL_LETTER",
+      "USPS First Class Mail - Large Envelope or Flat" => "USPS_FIRST_CLASS_MAIL_LARGE_ENVELOPE",
+      "USPS First Class Mail - Package" => "USPS_FIRST_CLASS_MAIL_PACKAGE",
+      
+      "USPS Priority Mail - Package" => "USPS_PRIORITY_MAIL_PACKAGE",
+      "USPS Priority Mail - Medium Flat Rate Box" => "USPS_PRIORITY_MAIL_MEDIUM_FLAT",
+      "USPS Priority Mail - Small Flat Rate Box" => "USPS_PRIORITY_MAIL_SMALL_FLAT",
+      "USPS Priority Mail - Large Flat Rate Box" => "USPS_PRIORITY_MAIL_LARGE_FLAT",
+      "USPS Priority Mail - Flat Rate Envelope" => "USPS_PRIORITY_MAIL_ENVOLEPE_FLAT",
+      "USPS Priority Mail - Flat Rate Padded Envelope" => "USPS_PRIORITY_MAIL_PADDED_ENVELOPE",
+      "USPS Priority Mail - Legal Flat Rate Envelope" => "USPS_PRIORITY_MAIL_LEGAL_FLAT",
+      
+      "USPS Priority Mail Express - Package" => "USPS_PRIORITY_MAIL_EXPRESS_PACKAGE",
+      "USPS Priority Mail Express - Flat Rate Envelope" => "USPS_PRIORITY_MAIL_EXPRESS_FLAT_ENVELOPE",
+      "USPS Priority Mail Express - Flat Rate Padded Envelope" => "USPS_PRIORITY_MAIL_EXPRESS_PADDED_ENVELOPE",
+      "USPS Priority Mail Express - Legal Flat Rate Envelope" => "USPS_PRIORITY_MAIL_EXPRESS_LEGAL_ENVELOPE",
+      
+      "USPS Media Mail - Package" => "USPS_MEDIA_MAIL",
+      "USPS Parcel Select Ground - Package" => "USPS_PARCEL_SELECT",
+      "USPS Ground Advantage - Package" => "USPS_GROUND_ADVANTAGE",
     }
 
     def requirements
@@ -101,8 +100,6 @@ module ActiveShipping
         success = false
         message = "An error occured. Please try again."
       end
-
-      raise "RATE ESTIMATES == #{rate_estimates}".inspect
 
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
