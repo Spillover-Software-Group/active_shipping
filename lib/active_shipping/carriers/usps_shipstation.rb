@@ -62,32 +62,31 @@ module ActiveShipping
         #   # "We are unable to calculate shipping rates for the selected items" to the user
         #   packages_rates = []
         #   break
-        end
+        # end
       end
+    end
 
-      private
+    private
 
-      def http_request(full_url, body, test = false)
-        headers = {
-          "Authorization" => "Basic #{credentials_base64}",
-          "Content-type" => "application/json"
-        }
+    def http_request(full_url, body, test = false)
+      headers = {
+        "Authorization" => "Basic #{credentials_base64}",
+        "Content-type" => "application/json"
+      }
 
-        request = ssl_post(full_url, body, headers)
-        request
-      end
+      request = ssl_post(full_url, body, headers)
+      request
+    end
 
-      def credentials_base64
-        api_key = "d0dbd6c655cd42d8a987fad03783a6b2"
-        api_secret = "7b060e70eab94224bec70b5650def3d1"
+    def credentials_base64
+      api_key = "d0dbd6c655cd42d8a987fad03783a6b2"
+      api_secret = "7b060e70eab94224bec70b5650def3d1"
 
-        credentials = "#{api_key}:#{api_secret}"
+      credentials = "#{api_key}:#{api_secret}"
 
 
-        # credentials = "#{options[:api_key]}:#{options[:api_secret]}"
-        Base64.strict_encode64(credentials)
-      end
-
+      # credentials = "#{options[:api_key]}:#{options[:api_secret]}"
+      Base64.strict_encode64(credentials)
     end
   end
 end
