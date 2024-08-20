@@ -80,13 +80,13 @@ module ActiveShipping
          
           raise "THE PACKAGE #{package} and totoal #{packages.count}".inspect
           packages_rates << package
-        rescue StandardError => e
-          raise "error #{e} and message #{e&.message}".inspect
-          # If for any reason the request fails, we return an error and display the message
-          # "We are unable to calculate shipping rates for the selected items" to the user
-          packages_rates = []
-          break
-        end
+        # rescue StandardError => e
+        #   raise "error #{e} and message #{e&.message}".inspect
+        #   # If for any reason the request fails, we return an error and display the message
+        #   # "We are unable to calculate shipping rates for the selected items" to the user
+        #   packages_rates = []
+        #   break
+        # end
       end
 
       raise "THE RESULT FROM HERE #{packages_rates}".inspect
@@ -95,14 +95,12 @@ module ActiveShipping
     private
 
     def generate_package_rates(response)
-      services_rates = response.map do |service_type|
+      response.map do |service_type|
         {
           mail_class: SERVICE_MAIL_CLASSES[:"#{service_type["serviceName"]}"],
           price: service_type["shipmentCost"]
         }
       end
-
-      services_rates.compact!
     end
 
     def http_request(full_url, body, test = false)
