@@ -88,8 +88,8 @@ module ActiveShipping
       end
 
       if packages_rates.any?
-        rate_estimates = packages_rates.map do |service|
-          raise "#{service} FROM SERVICE #{service[:mail_class]} AND PRICE #{service[:price]}".inspect
+        rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
+          raise "TESTAAA NEW = #{generate_packages_rates_estimates(packages_rates)}".inspect
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
             :total_price => service[:price],
@@ -108,6 +108,20 @@ module ActiveShipping
     end
 
     private
+
+    def generate_packages_rates_estimates(packages_rates)
+      # We sum all the prices from the same service for each package
+      # and return a single cost for each service
+      total_prices = Hash.new(0)
+
+      packages_rates.each do |package|
+        package[:rates].each do |rate|
+          total_prices[rate[:mail_class]] += rate[:price]
+        end
+      end
+
+      total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
+    end
 
     def generate_package_rates(response)
       response.map do |service_type|
