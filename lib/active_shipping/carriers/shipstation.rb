@@ -72,6 +72,7 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
+      raise "TEST #{generate_packages_rates_estimates(packages_rates)}".inspect
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
@@ -122,6 +123,6 @@ module ActiveShipping
       # credentials = "#{options[:api_key]}:#{options[:api_secret]}"
       Base64.strict_encode64(credentials)
     end
-    
+
   end
 end
