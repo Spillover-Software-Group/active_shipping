@@ -77,8 +77,7 @@ module ActiveShipping
             package: index,
             rates: generate_package_rates(response)
           }
-         
-          raise "THE PACKAGE #{package} and totoal #{packages.count}".inspect
+
           packages_rates << package
         # rescue StandardError => e
         #   raise "error #{e} and message #{e&.message}".inspect
@@ -89,10 +88,31 @@ module ActiveShipping
         # end
       end
 
-      raise "THE RESULT FROM HERE #{packages_rates}".inspect
+      if packages_rates.any?
+        rate_estimates = packages_rates.map do |service|
+          RateEstimate.new(origin, destination, @@name, service[:mail_class],
+            :service_code => service[:mail_class],
+            :total_price => service[:price],
+            :currency => "USD",
+            :packages => packages
+          )
+        end
+      else
+        success = false
+        message = "An error occured. Please try again."
+      end
+
+      raise "RATE ESTIMATES == #{rate_estimates}".inspect
+
+      # RateResponse expectes a response object as third argument, but we don't have a single
+      # response, so we are passing anything to fill the gap
+      RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
     end
 
     private
+
+    def generate_packages_rates_estimates
+    end
 
     def generate_package_rates(response)
       response.map do |service_type|
