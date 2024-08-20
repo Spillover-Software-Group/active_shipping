@@ -89,6 +89,7 @@ module ActiveShipping
 
       if packages_rates.any?
         rate_estimates = packages_rates.map do |service|
+          raise "#{service} FROM SERVICE #{service[:mail_class]} AND PRICE #{service[:price]}".inspect
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
             :total_price => service[:price],
