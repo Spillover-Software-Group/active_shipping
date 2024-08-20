@@ -71,8 +71,6 @@ module ActiveShipping
             body.to_json,
           )
 
-          raise "THE REQUEST #{request}".inspect
-
           response = JSON.parse(request)
           raise "the RESPONSE #{response}".inspect
 
