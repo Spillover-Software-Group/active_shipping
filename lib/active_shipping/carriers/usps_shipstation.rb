@@ -27,7 +27,7 @@ module ActiveShipping
             carrier_code: "stamps_com",
             fromPostalCode: origin.zip,
             toState: origin.state,
-            toCountry: origin.country,
+            toCountry: origin.country[:codes].first[:value],
             toPostalCode: destination.zip,
             weight: {
               value: package.oz.to_f,
