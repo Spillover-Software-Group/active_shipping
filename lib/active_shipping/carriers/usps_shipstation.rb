@@ -89,7 +89,6 @@ module ActiveShipping
 
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
-          raise "TESTAAA NEW = #{generate_packages_rates_estimates(packages_rates)}".inspect
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
             :total_price => service[:price],
