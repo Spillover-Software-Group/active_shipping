@@ -103,13 +103,11 @@ module ActiveShipping
 
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
-      RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
+      test = RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
+      raise "the RATE RESPONSE #{test} and #{test.rates}"
     end
 
     private
-
-    def generate_packages_rates_estimates
-    end
 
     def generate_package_rates(response)
       response.map do |service_type|
