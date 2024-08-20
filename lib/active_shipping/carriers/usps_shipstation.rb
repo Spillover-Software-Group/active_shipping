@@ -95,7 +95,7 @@ module ActiveShipping
     private
 
     def generate_package_rates(response)
-      service_rates = response.map do |service_type|
+      services_rates = response.map do |service_type|
         {
           mail_class: SERVICE_MAIL_CLASSES[:"#{service_type["serviceName"]}"],
           price: service_type["shipmentCost"]
