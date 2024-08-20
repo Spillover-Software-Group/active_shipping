@@ -88,7 +88,6 @@ module ActiveShipping
       end
 
       if packages_rates.any?
-        raise "the rates #{packages_rates}".inspect
         rate_estimates = packages_rates.map do |service|
           RateEstimate.new(origin, destination, @@name, service[:mail_class],
             :service_code => service[:mail_class],
@@ -102,6 +101,8 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
+      raise "LAST TEST #{rate_estimates}".inspect
+
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
@@ -110,15 +111,12 @@ module ActiveShipping
     private
 
     def generate_package_rates(response)
-      test = response.map do |service_type|
-        raise "#{SERVICE_MAIL_CLASSES[:"#{service_type["serviceName"]}"]} and #{SERVICE_MAIL_CLASSES[":#{service_type["serviceName"]}"]} TA".inspect
+      response.map do |service_type|
         {
           mail_class: SERVICE_MAIL_CLASSES[:"#{service_type["serviceName"]}"],
           price: service_type["shipmentCost"]
         }
       end
-
-      raise "the RATES TEST = #{test}".inspect
     end
 
     def http_request(full_url, body, test = false)
