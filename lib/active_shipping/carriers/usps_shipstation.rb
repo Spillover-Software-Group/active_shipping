@@ -101,8 +101,6 @@ module ActiveShipping
         message = "An error occured. Please try again."
       end
 
-      raise "LAST TEST #{rate_estimates}".inspect
-
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
