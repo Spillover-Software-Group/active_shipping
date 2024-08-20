@@ -74,8 +74,6 @@ module ActiveShipping
         "Content-type" => "application/json"
       }
 
-      raise "the body = #{body} and fullURL = #{full_url} and headers = #{headers}".inspect
-
       request = ssl_post(full_url, body, headers)
       request
     end
