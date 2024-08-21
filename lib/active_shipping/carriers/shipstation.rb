@@ -9,7 +9,7 @@ module ActiveShipping
       [:api_key, :api_secret]
     end
 
-    def find_rates(origin, destination, packages, options = {})
+    def find_rates_from_shipstation(origin, destination, packages, carrier_code, options = {})
       options = @options.merge(options)
 
       origin = Location.from(origin)
@@ -18,7 +18,7 @@ module ActiveShipping
       
       success = true
       message = ''
-      packages_rates = call_packages_rates(origin, destination, packages, options)
+      packages_rates = call_packages_rates(origin, destination, packages, carrier_code, options)
 
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
@@ -41,12 +41,12 @@ module ActiveShipping
 
     private
 
-    def call_packages_rates(origin, destination, packages, options = {})
+    def call_packages_rates(origin, destination, packages, carrier_code, options = {})
       packages_rates = []
       packages.each_with_index do |package, index|
         begin
           body = {
-            carrierCode: "stamps_com",
+            carrierCode: carrier_code,
             fromPostalCode: origin.zip,
             toState: origin.state,
             toCountry: origin.country_code,

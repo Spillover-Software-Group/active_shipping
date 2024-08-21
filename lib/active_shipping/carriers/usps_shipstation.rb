@@ -28,6 +28,10 @@ module ActiveShipping
       }
     end
 
+    def find_rates(origin, destination, packages, options = {})
+      find_rates_from_shipstation(origin, destination, packages, "stamps_com", options = {})
+    end
+
     # def find_rates(origin, destination, packages, options = {})
     #   options = @options.merge(options)
 
@@ -37,50 +41,50 @@ module ActiveShipping
       
     #   success = true
     #   message = ''
-    #   packages_rates = []
+    #   packages_rates = call_packages_rates(origin, destination, packages, carrier_code, options)
 
-    #   packages.each_with_index do |package, index|
-    #     begin
-    #       body = {
-    #         carrierCode: "stamps_com",
-    #         fromPostalCode: origin.zip,
-    #         toState: origin.state,
-    #         toCountry: origin.country_code,
-    #         toPostalCode: destination.zip,
-    #         weight: {
-    #           value: package.oz.to_f,
-    #           units: "ounces"
-    #         },
-    #         dimensions: {
-    #           units: "inches",
-    #           length: package.inches(:length).to_f,
-    #           width: package.inches(:width).to_f,
-    #           height: package.inches(:height).to_f,
-    #         },
-    #         residential: true
-    #       }
+    #   # packages.each_with_index do |package, index|
+    #   #   begin
+    #   #     body = {
+    #   #       carrierCode: "stamps_com",
+    #   #       fromPostalCode: origin.zip,
+    #   #       toState: origin.state,
+    #   #       toCountry: origin.country_code,
+    #   #       toPostalCode: destination.zip,
+    #   #       weight: {
+    #   #         value: package.oz.to_f,
+    #   #         units: "ounces"
+    #   #       },
+    #   #       dimensions: {
+    #   #         units: "inches",
+    #   #         length: package.inches(:length).to_f,
+    #   #         width: package.inches(:width).to_f,
+    #   #         height: package.inches(:height).to_f,
+    #   #       },
+    #   #       residential: true
+    #   #     }
     
-    #       request = http_request(
-    #         "#{LIVE_URL}/shipments/getrates",
-    #         body.to_json,
-    #       )
+    #   #     request = http_request(
+    #   #       "#{LIVE_URL}/shipments/getrates",
+    #   #       body.to_json,
+    #   #     )
 
-    #       response = JSON.parse(request)
+    #   #     response = JSON.parse(request)
 
-    #       package = {
-    #         package: index,
-    #         rates: generate_package_rates(response)
-    #       }
+    #   #     package = {
+    #   #       package: index,
+    #   #       rates: generate_package_rates(response)
+    #   #     }
 
-    #       packages_rates << package
-    #     rescue StandardError => e
-    #       raise "error #{e} and message #{e&.message}".inspect
-    #       # If for any reason the request fails, we return an error and display the message
-    #       # "We are unable to calculate shipping rates for the selected items" to the user
-    #       packages_rates = []
-    #       break
-    #     end
-    #   end
+    #   #     packages_rates << package
+    #   #   rescue StandardError => e
+    #   #     raise "error #{e} and message #{e&.message}".inspect
+    #   #     # If for any reason the request fails, we return an error and display the message
+    #   #     # "We are unable to calculate shipping rates for the selected items" to the user
+    #   #     packages_rates = []
+    #   #     break
+    #   #   end
+    #   # end
 
     #   if packages_rates.any?
     #     rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
