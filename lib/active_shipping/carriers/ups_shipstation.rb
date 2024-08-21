@@ -1,5 +1,8 @@
 module ActiveShipping
   class UPSShipstation < Shipstation
+    cattr_reader :name
+    @@name = "UPS Shipstation"
+
     def requirements
       [:api_key, :api_secret]
     end
