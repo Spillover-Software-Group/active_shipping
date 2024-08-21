@@ -7,9 +7,9 @@ module ActiveShipping
       [:api_key, :api_secret]
     end
 
-    def find_rates(origin, destination, packages, options = {})
-      raise "GSUTAVO CAMELLO TEST".inspect
-    end
+    # def find_rates(origin, destination, packages, options = {})
+    #   raise "GSUTAVO CAMELLO TEST".inspect
+    # end
 
     def shipstation_url
       "https://ssapi.shipstation.com"
