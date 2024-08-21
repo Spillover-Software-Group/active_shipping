@@ -3,32 +3,7 @@ module ActiveShipping
     cattr_reader :name
     @@name = "Shipstation"
 
-    # LIVE_URL = ""
-
-    # SERVICE_MAIL_CLASSES = {}
-
-    # SERVICE_MAIL_CLASSES = {
-    #   "USPS First Class Mail - Letter": "USPS_FIRST_CLASS_MAIL_LETTER",
-    #   "USPS First Class Mail - Large Envelope or Flat": "USPS_FIRST_CLASS_MAIL_LARGE_ENVELOPE",
-    #   "USPS First Class Mail - Package": "USPS_FIRST_CLASS_MAIL_PACKAGE",
-      
-    #   "USPS Priority Mail - Package": "USPS_PRIORITY_MAIL_PACKAGE",
-    #   "USPS Priority Mail - Medium Flat Rate Box": "USPS_PRIORITY_MAIL_MEDIUM_FLAT",
-    #   "USPS Priority Mail - Small Flat Rate Box": "USPS_PRIORITY_MAIL_SMALL_FLAT",
-    #   "USPS Priority Mail - Large Flat Rate Box": "USPS_PRIORITY_MAIL_LARGE_FLAT",
-    #   "USPS Priority Mail - Flat Rate Envelope": "USPS_PRIORITY_MAIL_ENVOLEPE_FLAT",
-    #   "USPS Priority Mail - Flat Rate Padded Envelope": "USPS_PRIORITY_MAIL_PADDED_ENVELOPE",
-    #   "USPS Priority Mail - Legal Flat Rate Envelope": "USPS_PRIORITY_MAIL_LEGAL_FLAT",
-      
-    #   "USPS Priority Mail Express - Package": "USPS_PRIORITY_MAIL_EXPRESS_PACKAGE",
-    #   "USPS Priority Mail Express - Flat Rate Envelope": "USPS_PRIORITY_MAIL_EXPRESS_FLAT_ENVELOPE",
-    #   "USPS Priority Mail Express - Flat Rate Padded Envelope": "USPS_PRIORITY_MAIL_EXPRESS_PADDED_ENVELOPE",
-    #   "USPS Priority Mail Express - Legal Flat Rate Envelope": "USPS_PRIORITY_MAIL_EXPRESS_LEGAL_ENVELOPE",
-      
-    #   "USPS Media Mail - Package": "USPS_MEDIA_MAIL",
-    #   "USPS Parcel Select Ground - Package": "USPS_PARCEL_SELECT",
-    #   "USPS Ground Advantage - Package": "USPS_GROUND_ADVANTAGE",
-    # }
+    LIVE_URL = "https://ssapi.shipstation.com"
 
     def requirements
       [:api_key, :api_secret]
@@ -43,8 +18,31 @@ module ActiveShipping
       
       success = true
       message = ''
-      packages_rates = []
+      packages_rates = call_packages_rates(origin, destination, packages, options)
 
+      if packages_rates.any?
+        rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
+          RateEstimate.new(origin, destination, @@name, service[:mail_class],
+            :service_code => service[:mail_class],
+            :total_price => service[:price],
+            :currency => "USD",
+            :packages => packages
+          )
+        end
+      else
+        success = false
+        message = "An error occured. Please try again."
+      end
+
+      # RateResponse expectes a response object as third argument, but we don't have a single
+      # response, so we are passing anything to fill the gap
+      RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
+    end
+
+    private
+
+    def call_packages_rates(origin, destination, packages, options = {})
+      packages_rates = []
       packages.each_with_index do |package, index|
         begin
           body = {
@@ -67,7 +65,7 @@ module ActiveShipping
           }
     
           request = http_request(
-            "#{shipstation_url}/shipments/getrates",
+            "#{LIVE_URL}/shipments/getrates",
             body.to_json,
           )
 
@@ -88,26 +86,8 @@ module ActiveShipping
         end
       end
 
-      if packages_rates.any?
-        rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
-          RateEstimate.new(origin, destination, @@name, service[:mail_class],
-            :service_code => service[:mail_class],
-            :total_price => service[:price],
-            :currency => "USD",
-            :packages => packages
-          )
-        end
-      else
-        success = false
-        message = "An error occured. Please try again."
-      end
-
-      # RateResponse expectes a response object as third argument, but we don't have a single
-      # response, so we are passing anything to fill the gap
-      RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
+      packages_rates
     end
-
-    private
 
     def generate_packages_rates_estimates(packages_rates)
       # We sum all the prices from the same service for each package
