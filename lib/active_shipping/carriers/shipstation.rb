@@ -46,7 +46,7 @@ module ActiveShipping
     def call_packages_rates(origin, destination, packages, carrier_code, options = {})
       packages_rates = []
       packages.each_with_index do |package, index|
-        begin
+        # begin
           body = {
             carrierCode: carrier_code,
             fromPostalCode: origin.zip,
@@ -79,12 +79,12 @@ module ActiveShipping
           }
 
           packages_rates << package
-        rescue StandardError => e
-          # If for any reason the request fails, we return an error and display the message
-          # "We are unable to calculate shipping rates for the selected items" to the user
-          packages_rates = []
-          break
-        end
+        # rescue StandardError => e
+        #   # If for any reason the request fails, we return an error and display the message
+        #   # "We are unable to calculate shipping rates for the selected items" to the user
+        #   packages_rates = []
+        #   break
+        # end
       end
 
       packages_rates
