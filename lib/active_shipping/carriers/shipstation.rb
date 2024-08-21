@@ -122,13 +122,7 @@ module ActiveShipping
     end
 
     def credentials_base64
-      api_key = "d0dbd6c655cd42d8a987fad03783a6b2"
-      api_secret = "7b060e70eab94224bec70b5650def3d1"
-
-      credentials = "#{api_key}:#{api_secret}"
-
-
-      # credentials = "#{options[:api_key]}:#{options[:api_secret]}"
+      credentials = "#{options[:api_key]}:#{options[:api_secret]}"
       Base64.strict_encode64(credentials)
     end
   end
