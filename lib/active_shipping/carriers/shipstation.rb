@@ -20,7 +20,7 @@ module ActiveShipping
       message = ''
       packages_rates = call_packages_rates(origin, destination, packages, carrier_code, options)
 
-      raise "package_rates #{package_rates}".inspect
+      raise "package_rates #{packages_rates}".inspect
 
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
