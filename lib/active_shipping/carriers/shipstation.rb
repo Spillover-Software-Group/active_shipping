@@ -122,8 +122,7 @@ module ActiveShipping
     end
 
     def credentials_base64
-      raise "the options #{options}".inspect
-      credentials = "#{options[:api_key]}:#{options[:api_secret]}"
+      credentials = "#{@options[:api_key]}:#{@options[:api_secret]}"
       Base64.strict_encode64(credentials)
     end
   end
