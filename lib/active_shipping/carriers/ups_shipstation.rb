@@ -11,7 +11,7 @@ module ActiveShipping
         "UPS 2nd Day Air®": "UPS_SECOND_DAY_AIR",
         "UPS 3 Day Select®": "UPS_THIRD_DAY_SELECT",
         "UPS® Ground": "UPS_GROUND",
-        "UPS® Ground Saver": "UPS_GROUND_SAVER",
+        "UPS Ground Saver": "UPS_GROUND_SAVER",
       }
     end
 
