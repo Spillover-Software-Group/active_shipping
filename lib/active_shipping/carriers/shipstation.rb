@@ -80,7 +80,6 @@ module ActiveShipping
 
           packages_rates << package
         rescue StandardError => e
-          raise "error #{e} and message #{e&.message}".inspect
           # If for any reason the request fails, we return an error and display the message
           # "We are unable to calculate shipping rates for the selected items" to the user
           packages_rates = []
@@ -107,6 +106,9 @@ module ActiveShipping
 
     def generate_package_rates(response)
       response.map do |service_type|
+        unless service_mail_classes[:"#{service_type["serviceName"]}"]
+          raise "service_type = #{service_type} and thename #{:"#{service_type["serviceName"]}"}".inspect
+        end
         {
           mail_class: service_mail_classes[:"#{service_type["serviceName"]}"],
           price: service_type["shipmentCost"]
