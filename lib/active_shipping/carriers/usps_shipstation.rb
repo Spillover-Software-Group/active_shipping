@@ -1,5 +1,5 @@
 module ActiveShipping
-  class USPSShipstation < Shipstation
+  class USPSShipstation < Carrier
     cattr_reader :name
     @@name = "USPS Shipstation"
 
@@ -28,127 +28,127 @@ module ActiveShipping
       "USPS Ground Advantage - Package": "USPS_GROUND_ADVANTAGE",
     }
 
-    # def requirements
-    #   [:api_key, :api_secret]
-    # end
+    def requirements
+      [:api_key, :api_secret]
+    end
 
-    # def find_rates(origin, destination, packages, options = {})
-    #   options = @options.merge(options)
+    def find_rates(origin, destination, packages, options = {})
+      options = @options.merge(options)
 
-    #   origin = Location.from(origin)
-    #   destination = Location.from(destination)
-    #   packages = Array(packages)
+      origin = Location.from(origin)
+      destination = Location.from(destination)
+      packages = Array(packages)
       
-    #   success = true
-    #   message = ''
-    #   packages_rates = []
+      success = true
+      message = ''
+      packages_rates = []
 
-    #   packages.each_with_index do |package, index|
-    #     begin
-    #       body = {
-    #         carrierCode: "stamps_com",
-    #         fromPostalCode: origin.zip,
-    #         toState: origin.state,
-    #         toCountry: origin.country_code,
-    #         toPostalCode: destination.zip,
-    #         weight: {
-    #           value: package.oz.to_f,
-    #           units: "ounces"
-    #         },
-    #         dimensions: {
-    #           units: "inches",
-    #           length: package.inches(:length).to_f,
-    #           width: package.inches(:width).to_f,
-    #           height: package.inches(:height).to_f,
-    #         },
-    #         residential: true
-    #       }
+      packages.each_with_index do |package, index|
+        begin
+          body = {
+            carrierCode: "stamps_com",
+            fromPostalCode: origin.zip,
+            toState: origin.state,
+            toCountry: origin.country_code,
+            toPostalCode: destination.zip,
+            weight: {
+              value: package.oz.to_f,
+              units: "ounces"
+            },
+            dimensions: {
+              units: "inches",
+              length: package.inches(:length).to_f,
+              width: package.inches(:width).to_f,
+              height: package.inches(:height).to_f,
+            },
+            residential: true
+          }
     
-    #       request = http_request(
-    #         "#{LIVE_URL}/shipments/getrates",
-    #         body.to_json,
-    #       )
+          request = http_request(
+            "#{LIVE_URL}/shipments/getrates",
+            body.to_json,
+          )
 
-    #       response = JSON.parse(request)
+          response = JSON.parse(request)
 
-    #       package = {
-    #         package: index,
-    #         rates: generate_package_rates(response)
-    #       }
+          package = {
+            package: index,
+            rates: generate_package_rates(response)
+          }
 
-    #       packages_rates << package
-    #     rescue StandardError => e
-    #       raise "error #{e} and message #{e&.message}".inspect
-    #       # If for any reason the request fails, we return an error and display the message
-    #       # "We are unable to calculate shipping rates for the selected items" to the user
-    #       packages_rates = []
-    #       break
-    #     end
-    #   end
+          packages_rates << package
+        rescue StandardError => e
+          raise "error #{e} and message #{e&.message}".inspect
+          # If for any reason the request fails, we return an error and display the message
+          # "We are unable to calculate shipping rates for the selected items" to the user
+          packages_rates = []
+          break
+        end
+      end
 
-    #   if packages_rates.any?
-    #     rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
-    #       RateEstimate.new(origin, destination, @@name, service[:mail_class],
-    #         :service_code => service[:mail_class],
-    #         :total_price => service[:price],
-    #         :currency => "USD",
-    #         :packages => packages
-    #       )
-    #     end
-    #   else
-    #     success = false
-    #     message = "An error occured. Please try again."
-    #   end
+      if packages_rates.any?
+        rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
+          RateEstimate.new(origin, destination, @@name, service[:mail_class],
+            :service_code => service[:mail_class],
+            :total_price => service[:price],
+            :currency => "USD",
+            :packages => packages
+          )
+        end
+      else
+        success = false
+        message = "An error occured. Please try again."
+      end
 
-    #   # RateResponse expectes a response object as third argument, but we don't have a single
-    #   # response, so we are passing anything to fill the gap
-    #   RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
-    # end
+      # RateResponse expectes a response object as third argument, but we don't have a single
+      # response, so we are passing anything to fill the gap
+      RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
+    end
 
-    # private
+    private
 
-    # def generate_packages_rates_estimates(packages_rates)
-    #   # We sum all the prices from the same service for each package
-    #   # and return a single cost for each service
-    #   total_prices = Hash.new(0)
+    def generate_packages_rates_estimates(packages_rates)
+      # We sum all the prices from the same service for each package
+      # and return a single cost for each service
+      total_prices = Hash.new(0)
 
-    #   packages_rates.each do |package|
-    #     package[:rates].each do |rate|
-    #       total_prices[rate[:mail_class]] += rate[:price]
-    #     end
-    #   end
+      packages_rates.each do |package|
+        package[:rates].each do |rate|
+          total_prices[rate[:mail_class]] += rate[:price]
+        end
+      end
 
-    #   total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
-    # end
+      total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
+    end
 
-    # def generate_package_rates(response)
-    #   response.map do |service_type|
-    #     {
-    #       mail_class: SERVICE_MAIL_CLASSES[:"#{service_type["serviceName"]}"],
-    #       price: service_type["shipmentCost"]
-    #     }
-    #   end
-    # end
+    def generate_package_rates(response)
+      response.map do |service_type|
+        {
+          mail_class: SERVICE_MAIL_CLASSES[:"#{service_type["serviceName"]}"],
+          price: service_type["shipmentCost"]
+        }
+      end
+    end
 
-    # def http_request(full_url, body, test = false)
-    #   headers = {
-    #     "Authorization" => "Basic #{credentials_base64}",
-    #     "Content-type" => "application/json"
-    #   }
+    def http_request(full_url, body, test = false)
+      headers = {
+        "Authorization" => "Basic #{credentials_base64}",
+        "Content-type" => "application/json"
+      }
 
-    #   request = ssl_post(full_url, body, headers)
-    #   request
-    # end
+      request = ssl_post(full_url, body, headers)
+      request
+    end
 
-    # def credentials_base64
-    #   api_key = "d0dbd6c655cd42d8a987fad03783a6b2"
-    #   api_secret = "7b060e70eab94224bec70b5650def3d1"
+    def credentials_base64
+      api_key = "d0dbd6c655cd42d8a987fad03783a6b2"
+      api_secret = "7b060e70eab94224bec70b5650def3d1"
 
-    #   credentials = "#{api_key}:#{api_secret}"
+      credentials = "#{api_key}:#{api_secret}"
 
 
-    #   # credentials = "#{options[:api_key]}:#{options[:api_secret]}"
-    #   Base64.strict_encode64(credentials)
-    # end
+      # credentials = "#{options[:api_key]}:#{options[:api_secret]}"
+      Base64.strict_encode64(credentials)
+    end
   end
 end

@@ -3,9 +3,9 @@ module ActiveShipping
     cattr_reader :name
     @@name = "Shipstation"
 
-    LIVE_URL = ""
+    # LIVE_URL = ""
 
-    SERVICE_MAIL_CLASSES = {}
+    # SERVICE_MAIL_CLASSES = {}
 
     # SERVICE_MAIL_CLASSES = {
     #   "USPS First Class Mail - Letter": "USPS_FIRST_CLASS_MAIL_LETTER",
@@ -67,7 +67,7 @@ module ActiveShipping
           }
     
           request = http_request(
-            "#{LIVE_URL}/shipments/getrates",
+            "#{shipstation_url}/shipments/getrates",
             body.to_json,
           )
 
@@ -126,7 +126,7 @@ module ActiveShipping
     def generate_package_rates(response)
       response.map do |service_type|
         {
-          mail_class: SERVICE_MAIL_CLASSES[:"#{service_type["serviceName"]}"],
+          mail_class: service_mail_classes[:"#{service_type["serviceName"]}"],
           price: service_type["shipmentCost"]
         }
       end
