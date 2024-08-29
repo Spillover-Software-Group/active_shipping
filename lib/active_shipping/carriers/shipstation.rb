@@ -112,13 +112,10 @@ module ActiveShipping
     end
 
     def http_request(full_url, body, test = false)
-      headers = {
+      ssl_post(full_url, body, {
         "Authorization" => "Basic #{credentials_base64}",
         "Content-type" => "application/json"
-      }
-
-      request = ssl_post(full_url, body, headers)
-      request
+      })
     end
 
     def credentials_base64

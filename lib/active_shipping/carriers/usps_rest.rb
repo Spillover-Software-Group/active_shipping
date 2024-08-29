@@ -31,7 +31,7 @@ module ActiveShipping
     ]
 
     def requirements
-      [:client_id, :client_secret, :access_token]
+      [:client_id, :client_secret]
     end
 
     def find_rates(origin, destination, packages, options = {})
@@ -145,58 +145,48 @@ module ActiveShipping
     private
 
     def http_request(full_url, body, test = false)
-      headers = {
-        "Authorization" => "Bearer #{@options[:access_token]}",
+      ssl_post(full_url, body, {
+        "Authorization" => "Bearer #{access_token(test:)}",
         "Content-type" => "application/json"
-      }
-
-      request = ssl_post(full_url, body, headers)
-      request
+      })
     rescue ActiveUtils::ResponseError => e
       if e.message == "Failed with 401 Unauthorized"
-        client_id = @options[:client_id]
-        client_secret = @options[:client_secret]
-        config = Spree::ActiveShippingConfiguration.new
-
-        if client_id && client_secret
-          begin
-            params = {
-              client_id: client_id,
-              client_secret: client_secret, 
-              grant_type: "client_credentials"
-            }
-
-            body = params.to_json
-            headers = {
-              "Content-Type" => "application/json"
-            }
-
-            new_token_response = ssl_post(
-              "#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token",
-              body,
-              headers
-            )
-
-            json = JSON.parse(new_token_response)
-
-            @options[:access_token] = json["access_token"]
-
-            config.usps_access_token = @options[:access_token]
-
-            request = ssl_post(full_url, body, "Authorization" => "Bearer #{json["access_token"]}")
-            request
-          rescue ActiveUtils::ResponseError
-            config.usps_access_token = nil
-            config.usps_refresh_token = nil
-            request
-          end
-        else
-          config.usps_access_token = nil
-          request
+        begin
+          ssl_post(full_url, body, {
+            "Authorization" => "Bearer #{access_token(renew: true, test:)}",
+            "Content-type" => "application/json"
+          })
+        rescue ActiveUtils::ResponseError => e
+          handle_exception(e)
         end
       else
-        request
+        handle_exception(e)
       end
+    end
+
+    def access_token(renew: false, test: false)
+      client_id = @options[:client_id]
+      client_secret = @options[:client_secret]
+
+      # From my testing, the access token is valid for 8 hours.
+      Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
+        response = ssl_post(
+          "#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token",
+          {
+            grant_type: "client_credentials",
+            client_id: client_id,
+            client_secret: client_secret
+          }.to_json,
+          { "Content-Type" => "application/json" }
+        )
+
+        JSON.parse(response).fetch("access_token")
+      end
+    end
+
+    def handle_exception(e)
+      ExceptionNotifier.notify_exception(e) if defined?(ExceptionNotifier)
+      raise
     end
   end
 end
