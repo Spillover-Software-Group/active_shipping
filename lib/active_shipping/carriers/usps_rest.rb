@@ -171,7 +171,7 @@ module ActiveShipping
       # From my testing, the access token is valid for 8 hours.
       Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
         response = ssl_post(
-          "#{test ? TEST_URL : LIVE_URL}/oauth2/v3/token",
+          "#{LIVE_URL}/oauth2/v3/token",
           {
             grant_type: "client_credentials",
             client_id: client_id,
