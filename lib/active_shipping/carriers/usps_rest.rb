@@ -54,7 +54,7 @@ module ActiveShipping
           body = {
             originZIPCode: origin.zip,
             destinationZIPCode: destination.zip,
-            weight: package.oz.to_f,
+            weight: package.lbs.to_f,
             length: package.inches(:length).to_f,
             width: package.inches(:width).to_f,
             height: package.inches(:height).to_f,
