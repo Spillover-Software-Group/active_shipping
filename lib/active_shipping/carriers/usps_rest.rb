@@ -49,8 +49,6 @@ module ActiveShipping
       message = ''
       packages_rates = []
 
-      raise "the packages count = #{packages.count}".inspect
-
       packages.each_with_index do |package, index|
         begin
           body = {
