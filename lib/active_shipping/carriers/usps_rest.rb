@@ -120,7 +120,7 @@ module ActiveShipping
     end
 
     def generate_package_rates(response)
-      raise response.innspect
+      raise response.inspect
       # USPS returns more than one from the same service
       # we find the minimun price for a service and return it
       services_rates = SERVICE_TYPES.map do |service_type|
