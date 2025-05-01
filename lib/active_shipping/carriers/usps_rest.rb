@@ -41,7 +41,7 @@ module ActiveShipping
       destination = Location.from(destination)
       packages = Array(packages)
       
-          raise "from find_rates ==== #{origin} #{destination}, #{packages}, #{options}"
+      raise access_token.inspect
       us_rates(origin, destination, packages, options)
     end
 
@@ -60,7 +60,7 @@ module ActiveShipping
             width: package.inches(:width).to_f,
             height: package.inches(:height).to_f,
           }
-    
+          
           request = http_request(
             "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
             body.to_json,
@@ -166,8 +166,10 @@ module ActiveShipping
     end
 
     def access_token(renew: false, test: false)
-      client_id = @options[:client_id]
-      client_secret = @options[:client_secret]
+      # client_id = @options[:client_id]
+      client_id = "cZARRbr9nJPwJfG9XA5Ib1ZgyPXOtODv"
+      # client_secret = @options[:client_secret]
+      client_secret = "k7zmgoItHMbGxfRe"
 
       # From my testing, the access token is valid for 8 hours.
       Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
