@@ -49,7 +49,7 @@ module ActiveShipping
       message = ''
       packages_rates = []
 
-      raise "packages.first = #{packages.first} and weight = #{packages.first.lbs.to_f} and length = #{packages.first.inches(:length).to_f} and widht = #{packages.first.inches(:width).to_f} and height = #{packages.first.inches(:height).to_f}"
+      # raise "packages.first = #{packages.first} and weight = #{packages.first.lbs.to_f} and length = #{packages.first.inches(:length).to_f} and widht = #{packages.first.inches(:width).to_f} and height = #{packages.first.inches(:height).to_f}"
 
       packages.each_with_index do |package, index|
         begin
@@ -61,8 +61,6 @@ module ActiveShipping
             width: package.inches(:width).to_f,
             height: package.inches(:height).to_f,
           }
-
-          
           
           request = http_request(
             "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
@@ -85,6 +83,8 @@ module ActiveShipping
           break
         end
       end
+
+      raise packages_rates.inspect
 
       
       if packages_rates.any?
