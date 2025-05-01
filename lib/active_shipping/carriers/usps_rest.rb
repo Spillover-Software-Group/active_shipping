@@ -35,13 +35,13 @@ module ActiveShipping
     end
 
     def find_rates(origin, destination, packages, options = {})
-    raise "from find_rates ==== #{origin} #{destination}, #{packages}"
       options = @options.merge(options)
 
       origin = Location.from(origin)
       destination = Location.from(destination)
       packages = Array(packages)
       
+          raise "from find_rates ==== #{origin} #{destination}, #{packages}, #{options}"
       us_rates(origin, destination, packages, options)
     end
 
