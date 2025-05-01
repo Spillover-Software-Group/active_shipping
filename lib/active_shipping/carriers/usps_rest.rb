@@ -49,7 +49,7 @@ module ActiveShipping
       message = ''
       packages_rates = []
 
-      raise "packages.first = #{packages} and weight = #{packages.first.lbs.to_f} and length = #{packages.first.inches(:length).to_f} and widht = #{packages.first.inches(:width).to_f} and height = #{packages.first.inches(:height).to_f}"
+      raise "weight = #{packages.first} and #{packages.first.lbs}"
 
       packages.each_with_index do |package, index|
         begin
