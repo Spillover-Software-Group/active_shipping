@@ -49,8 +49,6 @@ module ActiveShipping
       message = ''
       packages_rates = []
 
-      raise "weight = #{packages.first} and #{packages.first.lbs}"
-
       packages.each_with_index do |package, index|
         begin
           body = {
@@ -129,7 +127,7 @@ module ActiveShipping
 
         next if rates.nil? || rates.empty?
 
-        min_price_option = rates.min_by do |option|
+        min_price_option = rates.max_by do |option|
           option["rates"].map { |rate| rate["price"] }.min
         end
         service_rate = min_price_option["rates"].first
