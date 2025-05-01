@@ -127,10 +127,10 @@ module ActiveShipping
 
         next if rates.nil? || rates.empty?
 
-        min_price_option = rates.max_by do |option|
-          option["rates"].map { |rate| rate["price"] }.min
+        max_price_option = rates.max_by do |option|
+          option["rates"].map { |rate| rate["price"] }.max
         end
-        service_rate = min_price_option["rates"].first
+        service_rate = max_price_option["rates"].first
 
         {
           mail_class: service_rate["mailClass"],
