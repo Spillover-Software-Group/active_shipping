@@ -40,7 +40,7 @@ module ActiveShipping
       origin = Location.from(origin)
       destination = Location.from(destination)
       packages = Array(packages)
-
+      raise access_token.inspect
       us_rates(origin, destination, packages, options)
     end
 
@@ -60,7 +60,7 @@ module ActiveShipping
             height: package.inches(:height).to_f,
           }
 
-          raise access_token.inspect
+          
           
           request = http_request(
             "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
