@@ -67,7 +67,7 @@ module ActiveShipping
           )
 
           response = JSON.parse(request)
-
+          Rails.logger.info(response.inspect)
           package = {
             package: index,
             rates: generate_package_rates(response)
@@ -81,6 +81,8 @@ module ActiveShipping
           break
         end
       end
+      
+      raise packages_rates.inspect
       
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
