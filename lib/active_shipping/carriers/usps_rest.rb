@@ -40,7 +40,7 @@ module ActiveShipping
       origin = Location.from(origin)
       destination = Location.from(destination)
       packages = Array(packages)
-      raise access_token.inspect
+
       us_rates(origin, destination, packages, options)
     end
 
@@ -48,6 +48,8 @@ module ActiveShipping
       success = true
       message = ''
       packages_rates = []
+
+      raise packages.inspect
 
       packages.each_with_index do |package, index|
         begin
