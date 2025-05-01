@@ -67,7 +67,7 @@ module ActiveShipping
           )
 
           response = JSON.parse(request)
-          Rails.logger.info(response.inspect)
+
           package = {
             package: index,
             rates: generate_package_rates(response)
@@ -81,8 +81,6 @@ module ActiveShipping
           break
         end
       end
-      
-      raise packages_rates.inspect
       
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
@@ -166,10 +164,8 @@ module ActiveShipping
     end
 
     def access_token(renew: false, test: false)
-      # client_id = @options[:client_id]
-      client_id = "cZARRbr9nJPwJfG9XA5Ib1ZgyPXOtODv"
-      # client_secret = @options[:client_secret]
-      client_secret = "k7zmgoItHMbGxfRe"
+      client_id = @options[:client_id]
+      client_secret = @options[:client_secret]
 
       # From my testing, the access token is valid for 8 hours.
       Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
