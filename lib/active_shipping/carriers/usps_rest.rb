@@ -60,7 +60,7 @@ module ActiveShipping
             height: package.inches(:height).to_f,
           }
 
-          raise body.inspect
+          raise access_token.inspect
           
           request = http_request(
             "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
