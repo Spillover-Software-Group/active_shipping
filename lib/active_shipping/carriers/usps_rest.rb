@@ -40,7 +40,7 @@ module ActiveShipping
       origin = Location.from(origin)
       destination = Location.from(destination)
       packages = Array(packages)
-      
+
       us_rates(origin, destination, packages, options)
     end
 
@@ -59,7 +59,7 @@ module ActiveShipping
             width: package.inches(:width).to_f,
             height: package.inches(:height).to_f,
           }
-    
+          
           request = http_request(
             "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
             body.to_json,
@@ -81,7 +81,6 @@ module ActiveShipping
           break
         end
       end
-
       
       if packages_rates.any?
         rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
@@ -128,10 +127,10 @@ module ActiveShipping
 
         next if rates.nil? || rates.empty?
 
-        min_price_option = rates.min_by do |option|
-          option["rates"].map { |rate| rate["price"] }.min
+        max_price_option = rates.max_by do |option|
+          option["rates"].map { |rate| rate["price"] }.max
         end
-        service_rate = min_price_option["rates"].first
+        service_rate = max_price_option["rates"].first
 
         {
           mail_class: service_rate["mailClass"],
