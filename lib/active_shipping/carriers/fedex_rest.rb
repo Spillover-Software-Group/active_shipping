@@ -61,7 +61,9 @@ module ActiveShipping
 
       begin
         body = {
-          accountNumber: @options[:account_number],
+          accountNumber: {
+            value: @options[:account_number],
+          },
           requestedShipment: {
             shipper: {
               address: {
@@ -90,7 +92,9 @@ module ActiveShipping
         )
 
         response = JSON.parse(request)
+        puts "[FedexRest] rate response: #{response.inspect}"
         rate_estimates = get_rate_estimates(response)
+        puts "[FedexRest] rate estimates: #{rate_estimates.inspect}"
 
       rescue ActiveShipping::ResponseError => e
          # If for any reason the request fails, we return an error and display the message
@@ -162,10 +166,11 @@ module ActiveShipping
             grant_type: "client_credentials",
             client_id: client_id,
             client_secret: client_secret
-          }.to_json,
-          { "Content-Type" => "application/json" }
+          }.to_query,
+          { "Content-Type" => "application/x-www-form-urlencoded" }
         )
 
+        puts "[FedexRest] access token response: #{response.inspect}"
         JSON.parse(response).fetch("access_token")
       end
     end
