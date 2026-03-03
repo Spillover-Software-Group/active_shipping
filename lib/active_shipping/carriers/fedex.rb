@@ -1,7 +1,7 @@
 # DOCS: https://developer.fedex.com/api/en-us/catalog/rate/v1/docs.html
 
 module ActiveShipping
-  class Fedex < Carrier
+  class FedEx < Carrier
     self.retry_safe = true
     self.ssl_version = :TLSv1_2
 
