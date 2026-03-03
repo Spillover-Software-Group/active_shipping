@@ -57,7 +57,6 @@ module ActiveShipping
     def get_rates(origin, destination, packages, options = {})
       success = true
       message = ''
-      packages_rates = []
 
       # begin
         # body = {
@@ -386,10 +385,9 @@ module ActiveShipping
         #     }
         # }
 
+        Rails.logger.info("[FedexRest] rate request: #{request.inspect}")
         response = JSON.parse(request)
 
-        # raise "the response #{response}"
-        Rails.logger.info("[FedexRest] rate response: #{response.inspect}")
         rate_estimates = get_rate_estimates(response, origin, destination, packages)
         Rails.logger.info("[FedexRest] rate estimates: #{rate_estimates.inspect}")
 
@@ -397,7 +395,6 @@ module ActiveShipping
       #    # If for any reason the request fails, we return an error and display the message
       #   # "We are unable to calculate shipping rates for the selected items" to the user
       #   raise "FedEx API error: #{e.message}"
-      #   packages_rates = []
       # end
 
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
@@ -407,17 +404,11 @@ module ActiveShipping
 
     def get_rate_estimates(response, origin, destination, packages)
       rate_reply_details = response.dig("output", "rateReplyDetails") || []
-      Rails.logger.info("[FedexRest] rate_reply_details AAAA: #{response.inspect}")
-      Rails.logger.info("[FedexRest] rate_reply_details: #{rate_reply_details.inspect}")
 
       rate_reply_details.map do |detail|
         mail_class = detail["serviceType"]
         rated_shipment = detail["ratedShipmentDetails"]&.first
-        Rails.logger.info("[FedexRest] mail_class #{mail_class.inspect}")
-        Rails.logger.info("[FedexRest] rated_shipment: #{rated_shipment.inspect}")
-
         price = rated_shipment&.dig("totalNetFedExCharge")
-        Rails.logger.info("[FedexRest] price: #{price.inspect}")
 
         RateEstimate.new(origin, destination, @@name, mail_class,
           :service_code => mail_class,
