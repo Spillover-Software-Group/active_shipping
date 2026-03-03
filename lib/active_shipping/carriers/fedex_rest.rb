@@ -365,6 +365,8 @@ module ActiveShipping
 
     def get_rate_estimates(response)
       rate_reply_details = response.dig("output", "rateReplyDetails") || []
+      Rails.logger.info("[FedexRest] rate_reply_details AAAA: #{response.inspect}")
+      Rails.logger.info("[FedexRest] rate_reply_details: #{rate_reply_details.inspect}")
 
       rate_reply_details.map do |detail|
         mail_class = detail["serviceType"]
