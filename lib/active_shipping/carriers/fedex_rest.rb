@@ -406,17 +406,17 @@ module ActiveShipping
     # private
 
     def get_rate_estimates(response, origin, destination, packages)
-      rate_reply_details = response.dig(:output, :rateReplyDetails) || []
+      rate_reply_details = response.dig("output", "rateReplyDetails") || []
       Rails.logger.info("[FedexRest] rate_reply_details AAAA: #{response.inspect}")
       Rails.logger.info("[FedexRest] rate_reply_details: #{rate_reply_details.inspect}")
 
       rate_reply_details.map do |detail|
-        mail_class = detail[:serviceType]
-        rated_shipment = detail[:ratedShipmentDetails]&.first
+        mail_class = detail["serviceType"]
+        rated_shipment = detail["ratedShipmentDetails"]&.first
         Rails.logger.info("[FedexRest] mail_class #{mail_class.inspect}")
         Rails.logger.info("[FedexRest] rated_shipment: #{rated_shipment.inspect}")
 
-        price = rated_shipment&.dig(:totalNetFedExCharge)
+        price = rated_shipment&.dig("totalNetFedExCharge")
         Rails.logger.info("[FedexRest] price: #{price.inspect}")
 
         RateEstimate.new(origin, destination, @@name, mail_class,
