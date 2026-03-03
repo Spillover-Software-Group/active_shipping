@@ -91,7 +91,7 @@ module ActiveShipping
         #   test: options[:test]
         # )
 
-        request = {
+        response = {
           "transactionId": "APIF_SV_RATC_TxID3697f693-8ef8-4330-9643-1b5b26595716",
             "output": {
                 "alerts": [
@@ -344,9 +344,9 @@ module ActiveShipping
             }
         }
 
-        response = JSON.parse(request)
+        # response = JSON.parse(request)
 
-        raise "the response #{response}"
+        # raise "the response #{response}"
         Rails.logger.info("[FedexRest] rate response: #{response.inspect}")
         rate_estimates = get_rate_estimates(response)
         Rails.logger.info("[FedexRest] rate estimates: #{rate_estimates.inspect}")
