@@ -98,9 +98,9 @@ module ActiveShipping
 
       rescue ActiveShipping::ResponseError => e
          # If for any reason the request fails, we return an error and display the message
-          # "We are unable to calculate shipping rates for the selected items" to the user
+        # "We are unable to calculate shipping rates for the selected items" to the user
+        raise e.inspect
         packages_rates = []
-        break
       end
 
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
