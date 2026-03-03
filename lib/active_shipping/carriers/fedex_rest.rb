@@ -100,7 +100,7 @@ module ActiveShipping
       rescue ActiveShipping::ResponseError => e
          # If for any reason the request fails, we return an error and display the message
         # "We are unable to calculate shipping rates for the selected items" to the user
-        raise e.inspect
+        raise "FedEx API error: #{e.message}"
         packages_rates = []
       end
 
@@ -135,6 +135,7 @@ module ActiveShipping
     end
 
     def http_request(full_url, body, test = false)
+      raise "full_url: #{full_url}, body: #{body.inspect}"
       ssl_post(full_url, body, {
         "Authorization" => "Bearer #{access_token(test:)}",
         "Content-type" => "application/json"
@@ -155,7 +156,7 @@ module ActiveShipping
     end
 
     def access_token(renew: false, test: false)
-      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJDWFMtVFAiXSwiUGF5bG9hZCI6eyJjbGllbnRJZGVudGl0eSI6eyJjbGllbnRLZXkiOiJsNzZhNWU3ZmIzYzNjOTRkNmFhZjgxNGQ3YTZjZWJmYTJlIn0sImF1dGhlbnRpY2F0aW9uUmVhbG0iOiJDTUFDIiwiYWRkaXRpb25hbElkZW50aXR5Ijp7InRpbWVTdGFtcCI6IjAzLU1hci0yMDI2IDA0OjAwOjA2IEVTVCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJhcGltb2RlIjoiU2FuZGJveCIsImN4c0lzcyI6Imh0dHBzOi8vY3hzYXV0aHNlcnZlci1zdGFnaW5nLmFwcC5wYWFzLmZlZGV4LmNvbS90b2tlbi9vYXV0aDIifSwicGVyc29uYVR5cGUiOiJEaXJlY3RJbnRlZ3JhdG9yX0IyQiJ9LCJleHAiOjE3NzI1MzIwMDYsImp0aSI6IjgwNjFjN2RjLTU2ODEtNDgxYi1hNjcyLWM4ZDU2NjE4MzA2NyJ9.zzvqwUcC4seTR4hIaNolFm4ZbwkYDHFsUiVcV1B4BCDsyIesceivPtPsWPs02ONGRhH6jpd22kUriR-tNBe0wTkkJkp3E29QcN-5zNol9n0SXCU0F0lKGQsxCbxL5by9pcUf1fCxoAjuV8XsKxi3RuKqBjgGXwMydChh8PHY_kvalMYMRNVMKFTX68wfgF0hXyp-D3EQcufmSsfPVdSqluQExNFCZryF9Y4EDYp5Bqo2nKNVgBBlC2B2ikyXDgtx0cIeP1oO9cQjbUnXH3e9ccE_BXfJoswWVpMb0B4QWK5gFJ6QlTC_xk9qrgix5rBDDZDAm1xODLA9dU7XgmVj1DYNHdBSAwW1KUDsw26p9mnmYpsbFczzv8NplOetO6xGb6kNgwP6Tf2_Bves5AddTkHjWOWl00FmR5hYslq__EseMFGLtGIn71O70lqlkq6NWCZXNNh-_ieyZZ3VfXdYQJ07XduRE449D2iOdn85l6l5WH5dQmAD7YxOskY0lo7dIM9-WQBN7gwbpjMd6D9QqlpbZsl_bZWl2sIz_k7OdTPxhINq8h5LHY6OUf84AhGX827dSAXagnN4JObpTM2ST_GXUcEQDNo4iCqr_aYvqvpxtMhOsNHKT3fZOGjm56JRRYp_Yzlejsn_9hI3yJ4kgUyEJrIyzi5Vsha17G4qxHw"
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJDWFMtVFAiXSwiUGF5bG9hZCI6eyJjbGllbnRJZGVudGl0eSI6eyJjbGllbnRLZXkiOiJsNzZhNWU3ZmIzYzNjOTRkNmFhZjgxNGQ3YTZjZWJmYTJlIn0sImF1dGhlbnRpY2F0aW9uUmVhbG0iOiJDTUFDIiwiYWRkaXRpb25hbElkZW50aXR5Ijp7InRpbWVTdGFtcCI6IjAzLU1hci0yMDI2IDA0OjQzOjMzIEVTVCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJhcGltb2RlIjoiU2FuZGJveCIsImN4c0lzcyI6Imh0dHBzOi8vY3hzYXV0aHNlcnZlci1zdGFnaW5nLmFwcC5wYWFzLmZlZGV4LmNvbS90b2tlbi9vYXV0aDIifSwicGVyc29uYVR5cGUiOiJEaXJlY3RJbnRlZ3JhdG9yX0IyQiJ9LCJleHAiOjE3NzI1MzQ2MTMsImp0aSI6ImE3ODMyNWRmLTEwNWYtNGRlZC05MGRkLTRjZDNlYzVlNDg3YyJ9.k2vpfbCMJmZNedXjLfm7S92gchkLS6S5jeq9rn24U7rfybe7VQMb5iWFWbtrERQceHZlBj0Af7Ml0EoCGwik8Dqpj70AWp1y1rhq1NP4Wz3NvJ8AYbpMM1A2J9oElyPfXlYPiRXQZKNeRBHCGKXgMGHnqxy_BPB9M64AqI_i453L5vq2nP8RNyVsX16vIryu9dinxcQL7gn7l2C1gaGdKzHhNMZKS6zIZuA7vln1DzlmagF_RHjslX_13nuGVoMlK1uvKVaQJpFGLxxstgf5d1UXrJ5o9lPHImUezpKMcGPjLRRDidh1AaoAOpzcvPhk3aU_N5w1bBz8Pq26PoB7_BxfhoilvQySdUYKluY0Tlk5FRIzd3a30H1fCuL1mmX61dOb5rRx6_nmRBP5ezFcywiAiTcO1G_unWIPomnRpsmdv55QUu8N2RSMQgd0muYbh6LDvTMBE_LL6_4g4EP0EhxAAfBpg5Ll6zBFgLzjRxely_E22qi7zU_2Q0riphZ5CgmAEESiuwdvuxwxqIykwXUj2aaNHD81RMy-Q09B6OKkAiHoSnPxajPs4vkUb_GE3uUXLgh6viC_bmPgsGiNNXCaWoK0AJK3dfl7idjlNbcghb3OpxkGOPtjVabz8L2IXRXLV4MNuJ2rculy6k9JVnmDF4072DEhRPXKMc7GuA8"
       # client_id = @options[:client_id]
       # client_secret = @options[:client_secret]
 
@@ -179,7 +180,6 @@ module ActiveShipping
 
     def handle_exception(e)
       ExceptionNotifier.notify_exception(e) if defined?(ExceptionNotifier)
-      raise
     end
   end
 end
