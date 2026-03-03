@@ -137,7 +137,7 @@ module ActiveShipping
         "Content-type" => "application/json"
       })
     rescue ActiveUtils::ResponseError => e
-      Rails.logger.inf "The body of the request was: #{body}"
+      Rails.logger.info "The body of the request was: #{body}"
       Rails.logger.error "FedEx API ERROR STATUS: #{e.response.code}"
       Rails.logger.error "FedEx API ERROR BODY: #{e.response.body}"
       Rails.logger.error "FedEx API ERROR MESSAGE: #{e.message}"
