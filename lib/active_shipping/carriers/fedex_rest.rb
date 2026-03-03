@@ -110,8 +110,6 @@ module ActiveShipping
     private
 
     def get_rate_estimates(response)
-      # We generate a single cost for each service by summing the cost of each package
-      # and return an array of RateEstimate with the cost for each service
       rate_reply_details = response.dig("output", "rateReplyDetails") || []
 
       rate_reply_details.map do |detail|
