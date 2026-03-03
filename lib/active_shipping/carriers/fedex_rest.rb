@@ -92,9 +92,9 @@ module ActiveShipping
         )
 
         response = JSON.parse(request)
-        puts "[FedexRest] rate response: #{response.inspect}"
+        Rails.logger.info("[FedexRest] rate response: #{response.inspect}")
         rate_estimates = get_rate_estimates(response)
-        puts "[FedexRest] rate estimates: #{rate_estimates.inspect}"
+        Rails.logger.info("[FedexRest] rate estimates: #{rate_estimates.inspect}")
 
       rescue ActiveShipping::ResponseError => e
          # If for any reason the request fails, we return an error and display the message
@@ -170,7 +170,7 @@ module ActiveShipping
           { "Content-Type" => "application/x-www-form-urlencoded" }
         )
 
-        puts "[FedexRest] access token response: #{response.inspect}"
+        Rails.logger.info("[FedexRest] access token response: #{response.inspect}")
         JSON.parse(response).fetch("access_token")
       end
     end
