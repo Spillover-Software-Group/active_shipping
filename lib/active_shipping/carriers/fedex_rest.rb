@@ -41,7 +41,7 @@ module ActiveShipping
     }
 
     def requirements
-      [:client_id, :client_secret, :account_number]
+      [:client_id, :client_secret, :client_account]
     end
 
     def find_rates(origin, destination, packages, options = {})
@@ -62,7 +62,7 @@ module ActiveShipping
       begin
         body = {
           accountNumber: {
-            value: @options[:account_number],
+            value: @options[:client_account],
           },
           requestedShipment: {
             shipper: {
