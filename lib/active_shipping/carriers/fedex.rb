@@ -67,13 +67,13 @@ module ActiveShipping
             shipper: {
               address: {
                 postalCode: origin.zip,
-                countryCode: origin&.country&.codes&.first || "US"
+                countryCode: "US"
               }
             },
             recipient: {
               address: {
               postalCode: destination.zip,
-              countryCode: destination&.country&.codes&.first || "US"
+              countryCode: "US"
               }
             },
             shipmentSpecialServices: {
