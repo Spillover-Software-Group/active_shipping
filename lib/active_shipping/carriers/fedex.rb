@@ -131,12 +131,16 @@ module ActiveShipping
     end
 
     def http_request(full_url, body, test = false)
+      Rails.logger.info "FEDEX BODY: #{JSON.pretty_generate(body)}"
       ssl_post(full_url, body, {
         "Authorization" => "Bearer #{access_token(test:)}",
         "Content-type" => "application/json"
       })
     rescue ActiveUtils::ResponseError => e
-      Rails.logger.info "FedEx API request failed: #{e.message}"
+      Rails.logger.inf "The body of the request was: #{body}"
+      Rails.logger.error "FedEx API ERROR STATUS: #{e.response.code}"
+      Rails.logger.error "FedEx API ERROR BODY: #{e.response.body}"
+      Rails.logger.error "FedEx API ERROR MESSAGE: #{e.message}"
 
       if e.message == "Failed with 401 Unauthorized"
         begin
