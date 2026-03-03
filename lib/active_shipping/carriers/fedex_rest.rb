@@ -348,7 +348,7 @@ module ActiveShipping
 
         # raise "the response #{response}"
         Rails.logger.info("[FedexRest] rate response: #{response.inspect}")
-        rate_estimates = get_rate_estimates(response)
+        rate_estimates = get_rate_estimates(response, origin, destination, packages)
         Rails.logger.info("[FedexRest] rate estimates: #{rate_estimates.inspect}")
 
       # rescue ActiveShipping::ResponseError => e
@@ -361,9 +361,9 @@ module ActiveShipping
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
     end
 
-    private
+    # private
 
-    def get_rate_estimates(response)
+    def get_rate_estimates(response, origin, destination, packages)
       rate_reply_details = response.dig(:output, :rateReplyDetails) || []
       Rails.logger.info("[FedexRest] rate_reply_details AAAA: #{response.inspect}")
       Rails.logger.info("[FedexRest] rate_reply_details: #{rate_reply_details.inspect}")
@@ -377,7 +377,12 @@ module ActiveShipping
         price = rated_shipment&.dig(:totalNetFedExCharge)
         Rails.logger.info("[FedexRest] price: #{price.inspect}")
 
-        { mail_class: mail_class, price: price }
+        RateEstimate.new(origin, destination, @@name, mail_class,
+          :service_code => mail_class,
+          :total_price => price,
+          :currency => "USD",
+          :packages => packages
+        )
       end
     end
 
@@ -414,25 +419,24 @@ module ActiveShipping
     end
 
     def access_token(renew: false, test: false)
-      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJDWFMtVFAiXSwiUGF5bG9hZCI6eyJjbGllbnRJZGVudGl0eSI6eyJjbGllbnRLZXkiOiJsNzZhNWU3ZmIzYzNjOTRkNmFhZjgxNGQ3YTZjZWJmYTJlIn0sImF1dGhlbnRpY2F0aW9uUmVhbG0iOiJDTUFDIiwiYWRkaXRpb25hbElkZW50aXR5Ijp7InRpbWVTdGFtcCI6IjAzLU1hci0yMDI2IDA0OjQzOjMzIEVTVCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJhcGltb2RlIjoiU2FuZGJveCIsImN4c0lzcyI6Imh0dHBzOi8vY3hzYXV0aHNlcnZlci1zdGFnaW5nLmFwcC5wYWFzLmZlZGV4LmNvbS90b2tlbi9vYXV0aDIifSwicGVyc29uYVR5cGUiOiJEaXJlY3RJbnRlZ3JhdG9yX0IyQiJ9LCJleHAiOjE3NzI1MzQ2MTMsImp0aSI6ImE3ODMyNWRmLTEwNWYtNGRlZC05MGRkLTRjZDNlYzVlNDg3YyJ9.k2vpfbCMJmZNedXjLfm7S92gchkLS6S5jeq9rn24U7rfybe7VQMb5iWFWbtrERQceHZlBj0Af7Ml0EoCGwik8Dqpj70AWp1y1rhq1NP4Wz3NvJ8AYbpMM1A2J9oElyPfXlYPiRXQZKNeRBHCGKXgMGHnqxy_BPB9M64AqI_i453L5vq2nP8RNyVsX16vIryu9dinxcQL7gn7l2C1gaGdKzHhNMZKS6zIZuA7vln1DzlmagF_RHjslX_13nuGVoMlK1uvKVaQJpFGLxxstgf5d1UXrJ5o9lPHImUezpKMcGPjLRRDidh1AaoAOpzcvPhk3aU_N5w1bBz8Pq26PoB7_BxfhoilvQySdUYKluY0Tlk5FRIzd3a30H1fCuL1mmX61dOb5rRx6_nmRBP5ezFcywiAiTcO1G_unWIPomnRpsmdv55QUu8N2RSMQgd0muYbh6LDvTMBE_LL6_4g4EP0EhxAAfBpg5Ll6zBFgLzjRxely_E22qi7zU_2Q0riphZ5CgmAEESiuwdvuxwxqIykwXUj2aaNHD81RMy-Q09B6OKkAiHoSnPxajPs4vkUb_GE3uUXLgh6viC_bmPgsGiNNXCaWoK0AJK3dfl7idjlNbcghb3OpxkGOPtjVabz8L2IXRXLV4MNuJ2rculy6k9JVnmDF4072DEhRPXKMc7GuA8"
-      # client_id = @options[:client_id]
-      # client_secret = @options[:client_secret]
+      client_id = @options[:client_id]
+      client_secret = @options[:client_secret]
 
-      # # The access token is valid for 1 hour.
+      # The access token is valid for 1 hour.
       # Rails.cache.fetch("store_fedex_access_token:#{client_id}", expires_in: 59.minutes, force: renew) do
-      #   response = ssl_post(
-      #     # "#{LIVE_URL}/oauth/token",
-      #     "#{TEST_URL}/oauth/token",
-      #     {
-      #       grant_type: "client_credentials",
-      #       client_id: client_id,
-      #       client_secret: client_secret
-      #     }.to_query,
-      #     { "Content-Type" => "application/x-www-form-urlencoded" }
-      #   )
+        response = ssl_post(
+          # "#{LIVE_URL}/oauth/token",
+          "#{TEST_URL}/oauth/token",
+          {
+            grant_type: "client_credentials",
+            client_id: client_id,
+            client_secret: client_secret
+          }.to_query,
+          { "Content-Type" => "application/x-www-form-urlencoded" }
+        )
 
-      #   Rails.logger.info("[FedexRest] access token response: #{response.inspect}")
-      #   JSON.parse(response).fetch("access_token")
+        Rails.logger.info("[FedexRest] access token response: #{response.inspect}")
+        JSON.parse(response).fetch("access_token")
       # end
     end
 
