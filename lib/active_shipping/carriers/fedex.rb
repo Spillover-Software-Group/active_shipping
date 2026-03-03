@@ -66,18 +66,30 @@ module ActiveShipping
           requestedShipment: {
             shipper: {
               address: {
-              postalCode: origin.zip,
-              countryCode: origin.country
+                postalCode: origin.zip,
+                countryCode: origin&.country&.codes&.first || "US"
               }
             },
             recipient: {
               address: {
               postalCode: destination.zip,
-              countryCode: destination.country
+              countryCode: destination&.country&.codes&.first || "US"
               }
             },
-            serviceType: options[:service_type],
+            shipmentSpecialServices: {
+              specialServiceTypes: [
+                "FEDEX_ONE_RATE"
+              ],
+              homeDeliveryPremiumDetail: {
+                homedeliveryPremiumType: "APPOINTMENT"
+              }
+            },
+            serviceType: "GROUND_HOME_DELIVERY",
             pickupType: "CONTACT_FEDEX_TO_SCHEDULE",
+            rateRequestType: [
+              "LIST",
+              "ACCOUNT"
+            ],
             requestedPackageLineItems: requestedPackageLineItems(packages),
             preferredCurrency: "USD"
           }
@@ -178,7 +190,7 @@ module ActiveShipping
 
     def handle_exception(e)
       ExceptionNotifier.notify_exception(e) if defined?(ExceptionNotifier)
-      raise
+      raise e
     end
   end
 end
