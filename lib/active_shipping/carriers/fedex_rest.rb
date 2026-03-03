@@ -60,27 +60,69 @@ module ActiveShipping
       packages_rates = []
 
       # begin
+        # body = {
+        #   accountNumber: {
+        #     value: @options[:client_account],
+        #   },
+        #   requestedShipment: {
+        #     shipper: {
+        #       address: {
+        #       postalCode: origin.zip,
+        #       countryCode: origin.country
+        #       }
+        #     },
+        #     recipient: {
+        #       address: {
+        #       postalCode: destination.zip,
+        #       countryCode: destination.country
+        #       }
+        #     },
+        #     serviceType: options[:service_type],
+        #     pickupType: "CONTACT_FEDEX_TO_SCHEDULE",
+        #     requestedPackageLineItems: requestedPackageLineItems(packages),
+        #     preferredCurrency: "USD"
+        #   }
+        # }
         body = {
-          accountNumber: {
-            value: @options[:client_account],
+          "accountNumber": {
+            "value": "XXXXX7364"
           },
-          requestedShipment: {
-            shipper: {
-              address: {
-              postalCode: origin.zip,
-              countryCode: origin.country
+          "requestedShipment": {
+            "shipper": {
+              "address": {
+                "postalCode": 65247,
+                "countryCode": "US"
               }
             },
-            recipient: {
-              address: {
-              postalCode: destination.zip,
-              countryCode: destination.country
+            "recipient": {
+              "address": {
+                "postalCode": 75063,
+                "countryCode": "US",
+                "residential": true
               }
             },
-            serviceType: options[:service_type],
-            pickupType: "CONTACT_FEDEX_TO_SCHEDULE",
-            requestedPackageLineItems: requestedPackageLineItems(packages),
-            preferredCurrency: "USD"
+            "pickupType": "DROPOFF_AT_FEDEX_LOCATION",
+            "serviceType": "GROUND_HOME_DELIVERY",
+            "shipmentSpecialServices": {
+              "specialServiceTypes": [
+                "HOME_DELIVERY_PREMIUM"
+              ],
+              "homeDeliveryPremiumDetail": {
+                "homedeliveryPremiumType": "APPOINTMENT"
+              }
+            },
+            "rateRequestType": [
+              "LIST",
+              "ACCOUNT"
+            ],
+            "requestedPackageLineItems": [
+              {
+                "weight": {
+                  "units": "LB",
+                  "value": 10
+                }
+              }
+            ]
           }
         }
         
@@ -91,260 +133,260 @@ module ActiveShipping
         #   test: options[:test]
         # )
 
-        response = {
-          "transactionId": "APIF_SV_RATC_TxID3697f693-8ef8-4330-9643-1b5b26595716",
-            "output": {
-                "alerts": [
-                    {
-                        "code": "VIRTUAL.RESPONSE",
-                        "message": "This is a Virtual Response.",
-                        "alertType": "NOTE"
-                    },
-                    {
-                        "code": "ORIGIN.STATEORPROVINCECODE.CHANGED",
-                        "message": "The origin state/province code has been changed.",
-                        "alertType": "NOTE"
-                    },
-                    {
-                        "code": "DESTINATION.STATEORPROVINCECODE.CHANGED",
-                        "message": "The destination state/province code has been changed.",
-                        "alertType": "NOTE"
-                    }
-                ],
-                "rateReplyDetails": [
-                    {
-                        "serviceType": "GROUND_HOME_DELIVERY",
-                        "serviceName": "FedEx Home DeliveryÂ®",
-                        "packagingType": "YOUR_PACKAGING",
-                        "ratedShipmentDetails": [
-                            {
-                                "rateType": "ACCOUNT",
-                                "ratedWeightMethod": "ACTUAL",
-                                "totalDiscounts": 0.0,
-                                "totalBaseCharge": 15.88,
-                                "totalNetCharge": 48.33,
-                                "totalNetFedExCharge": 48.33,
-                                "shipmentRateDetail": {
-                                    "rateZone": "4",
-                                    "dimDivisor": 0,
-                                    "fuelSurchargePercent": 15.0,
-                                    "totalSurcharges": 32.45,
-                                    "totalFreightDiscount": 0.0,
-                                    "surCharges": [
-                                        {
-                                            "type": "FUEL",
-                                            "description": "Fuel Surcharge",
-                                            "level": "PACKAGE",
-                                            "amount": 6.3
-                                        },
-                                        {
-                                            "type": "RESIDENTIAL_DELIVERY",
-                                            "description": "Residential surcharge",
-                                            "level": "PACKAGE",
-                                            "amount": 5.15
-                                        },
-                                        {
-                                            "type": "HOME_DELIVERY_APPOINTMENT",
-                                            "description": "FedEx Appointment Home Delivery",
-                                            "level": "SHIPMENT",
-                                            "amount": 21.0
-                                        }
-                                    ],
-                                    "totalBillingWeight": {
-                                        "units": "LB",
-                                        "value": 10.0
-                                    },
-                                    "currency": "USD"
-                                },
-                                "ratedPackages": [
-                                    {
-                                        "groupNumber": 0,
-                                        "effectiveNetDiscount": 0.0,
-                                        "packageRateDetail": {
-                                            "rateType": "PAYOR_ACCOUNT_PACKAGE",
-                                            "ratedWeightMethod": "ACTUAL",
-                                            "baseCharge": 15.88,
-                                            "netFreight": 15.88,
-                                            "totalSurcharges": 32.45,
-                                            "netFedExCharge": 48.33,
-                                            "totalTaxes": 0.0,
-                                            "netCharge": 48.33,
-                                            "totalRebates": 0.0,
-                                            "billingWeight": {
-                                                "units": "LB",
-                                                "value": 10.0
-                                            },
-                                            "totalFreightDiscounts": 0.0,
-                                            "surcharges": [
-                                                {
-                                                    "type": "FUEL",
-                                                    "description": "Fuel Surcharge",
-                                                    "level": "PACKAGE",
-                                                    "amount": 6.3
-                                                },
-                                                {
-                                                    "type": "RESIDENTIAL_DELIVERY",
-                                                    "description": "Residential surcharge",
-                                                    "level": "PACKAGE",
-                                                    "amount": 5.15
-                                                },
-                                                {
-                                                    "type": "HOME_DELIVERY_APPOINTMENT",
-                                                    "description": "FedEx Appointment Home Delivery",
-                                                    "level": "SHIPMENT",
-                                                    "amount": 21.0
-                                                }
-                                            ],
-                                            "currency": "USD"
-                                        }
-                                    }
-                                ],
-                                "currency": "USD"
-                            },
-                            {
-                                "rateType": "LIST",
-                                "ratedWeightMethod": "ACTUAL",
-                                "totalDiscounts": 0.0,
-                                "totalBaseCharge": 15.88,
-                                "totalNetCharge": 48.33,
-                                "totalNetFedExCharge": 48.33,
-                                "shipmentRateDetail": {
-                                    "rateZone": "4",
-                                    "dimDivisor": 0,
-                                    "fuelSurchargePercent": 15.0,
-                                    "totalSurcharges": 32.45,
-                                    "totalFreightDiscount": 0.0,
-                                    "surCharges": [
-                                        {
-                                            "type": "FUEL",
-                                            "description": "Fuel Surcharge",
-                                            "level": "PACKAGE",
-                                            "amount": 6.3
-                                        },
-                                        {
-                                            "type": "RESIDENTIAL_DELIVERY",
-                                            "description": "Residential surcharge",
-                                            "level": "PACKAGE",
-                                            "amount": 5.15
-                                        },
-                                        {
-                                            "type": "HOME_DELIVERY_APPOINTMENT",
-                                            "description": "FedEx Appointment Home Delivery",
-                                            "level": "SHIPMENT",
-                                            "amount": 21.0
-                                        }
-                                    ],
-                                    "totalBillingWeight": {
-                                        "units": "LB",
-                                        "value": 10.0
-                                    },
-                                    "currency": "USD"
-                                },
-                                "ratedPackages": [
-                                    {
-                                        "groupNumber": 0,
-                                        "effectiveNetDiscount": 0.0,
-                                        "packageRateDetail": {
-                                            "rateType": "PAYOR_LIST_PACKAGE",
-                                            "ratedWeightMethod": "ACTUAL",
-                                            "baseCharge": 15.88,
-                                            "netFreight": 15.88,
-                                            "totalSurcharges": 32.45,
-                                            "netFedExCharge": 48.33,
-                                            "totalTaxes": 0.0,
-                                            "netCharge": 48.33,
-                                            "totalRebates": 0.0,
-                                            "billingWeight": {
-                                                "units": "LB",
-                                                "value": 10.0
-                                            },
-                                            "totalFreightDiscounts": 0.0,
-                                            "surcharges": [
-                                                {
-                                                    "type": "FUEL",
-                                                    "description": "Fuel Surcharge",
-                                                    "level": "PACKAGE",
-                                                    "amount": 6.3
-                                                },
-                                                {
-                                                    "type": "RESIDENTIAL_DELIVERY",
-                                                    "description": "Residential surcharge",
-                                                    "level": "PACKAGE",
-                                                    "amount": 5.15
-                                                },
-                                                {
-                                                    "type": "HOME_DELIVERY_APPOINTMENT",
-                                                    "description": "FedEx Appointment Home Delivery",
-                                                    "level": "SHIPMENT",
-                                                    "amount": 21.0
-                                                }
-                                            ],
-                                            "currency": "USD"
-                                        }
-                                    }
-                                ],
-                                "currency": "USD"
-                            }
-                        ],
-                        "operationalDetail": {
-                            "ineligibleForMoneyBackGuarantee": false,
-                            "astraDescription": "FXH",
-                            "airportId": "DFW",
-                            "serviceCode": "90"
-                        },
-                        "signatureOptionType": "SERVICE_DEFAULT",
-                        "serviceDescription": {
-                            "serviceId": "EP1000000133",
-                            "serviceType": "GROUND_HOME_DELIVERY",
-                            "code": "90",
-                            "names": [
-                                {
-                                    "type": "long",
-                                    "encoding": "utf-8",
-                                    "value": "FedEx Home DeliveryÂ®"
-                                },
-                                {
-                                    "type": "long",
-                                    "encoding": "ascii",
-                                    "value": "FedEx Home Delivery"
-                                },
-                                {
-                                    "type": "medium",
-                                    "encoding": "utf-8",
-                                    "value": "Home DeliveryÂ®"
-                                },
-                                {
-                                    "type": "medium",
-                                    "encoding": "ascii",
-                                    "value": "Home Delivery"
-                                },
-                                {
-                                    "type": "short",
-                                    "encoding": "utf-8",
-                                    "value": "HD"
-                                },
-                                {
-                                    "type": "short",
-                                    "encoding": "ascii",
-                                    "value": "HD"
-                                },
-                                {
-                                    "type": "abbrv",
-                                    "encoding": "ascii",
-                                    "value": "QH"
-                                }
-                            ],
-                            "description": "FedEx Home Delivery",
-                            "astraDescription": "FXH"
-                        }
-                    }
-                ],
-                "quoteDate": "2026-03-03",
-                "encoded": false
-            }
-        }
+        # response = {
+        #   "transactionId": "APIF_SV_RATC_TxID3697f693-8ef8-4330-9643-1b5b26595716",
+        #     "output": {
+        #         "alerts": [
+        #             {
+        #                 "code": "VIRTUAL.RESPONSE",
+        #                 "message": "This is a Virtual Response.",
+        #                 "alertType": "NOTE"
+        #             },
+        #             {
+        #                 "code": "ORIGIN.STATEORPROVINCECODE.CHANGED",
+        #                 "message": "The origin state/province code has been changed.",
+        #                 "alertType": "NOTE"
+        #             },
+        #             {
+        #                 "code": "DESTINATION.STATEORPROVINCECODE.CHANGED",
+        #                 "message": "The destination state/province code has been changed.",
+        #                 "alertType": "NOTE"
+        #             }
+        #         ],
+        #         "rateReplyDetails": [
+        #             {
+        #                 "serviceType": "GROUND_HOME_DELIVERY",
+        #                 "serviceName": "FedEx Home DeliveryÂ®",
+        #                 "packagingType": "YOUR_PACKAGING",
+        #                 "ratedShipmentDetails": [
+        #                     {
+        #                         "rateType": "ACCOUNT",
+        #                         "ratedWeightMethod": "ACTUAL",
+        #                         "totalDiscounts": 0.0,
+        #                         "totalBaseCharge": 15.88,
+        #                         "totalNetCharge": 48.33,
+        #                         "totalNetFedExCharge": 48.33,
+        #                         "shipmentRateDetail": {
+        #                             "rateZone": "4",
+        #                             "dimDivisor": 0,
+        #                             "fuelSurchargePercent": 15.0,
+        #                             "totalSurcharges": 32.45,
+        #                             "totalFreightDiscount": 0.0,
+        #                             "surCharges": [
+        #                                 {
+        #                                     "type": "FUEL",
+        #                                     "description": "Fuel Surcharge",
+        #                                     "level": "PACKAGE",
+        #                                     "amount": 6.3
+        #                                 },
+        #                                 {
+        #                                     "type": "RESIDENTIAL_DELIVERY",
+        #                                     "description": "Residential surcharge",
+        #                                     "level": "PACKAGE",
+        #                                     "amount": 5.15
+        #                                 },
+        #                                 {
+        #                                     "type": "HOME_DELIVERY_APPOINTMENT",
+        #                                     "description": "FedEx Appointment Home Delivery",
+        #                                     "level": "SHIPMENT",
+        #                                     "amount": 21.0
+        #                                 }
+        #                             ],
+        #                             "totalBillingWeight": {
+        #                                 "units": "LB",
+        #                                 "value": 10.0
+        #                             },
+        #                             "currency": "USD"
+        #                         },
+        #                         "ratedPackages": [
+        #                             {
+        #                                 "groupNumber": 0,
+        #                                 "effectiveNetDiscount": 0.0,
+        #                                 "packageRateDetail": {
+        #                                     "rateType": "PAYOR_ACCOUNT_PACKAGE",
+        #                                     "ratedWeightMethod": "ACTUAL",
+        #                                     "baseCharge": 15.88,
+        #                                     "netFreight": 15.88,
+        #                                     "totalSurcharges": 32.45,
+        #                                     "netFedExCharge": 48.33,
+        #                                     "totalTaxes": 0.0,
+        #                                     "netCharge": 48.33,
+        #                                     "totalRebates": 0.0,
+        #                                     "billingWeight": {
+        #                                         "units": "LB",
+        #                                         "value": 10.0
+        #                                     },
+        #                                     "totalFreightDiscounts": 0.0,
+        #                                     "surcharges": [
+        #                                         {
+        #                                             "type": "FUEL",
+        #                                             "description": "Fuel Surcharge",
+        #                                             "level": "PACKAGE",
+        #                                             "amount": 6.3
+        #                                         },
+        #                                         {
+        #                                             "type": "RESIDENTIAL_DELIVERY",
+        #                                             "description": "Residential surcharge",
+        #                                             "level": "PACKAGE",
+        #                                             "amount": 5.15
+        #                                         },
+        #                                         {
+        #                                             "type": "HOME_DELIVERY_APPOINTMENT",
+        #                                             "description": "FedEx Appointment Home Delivery",
+        #                                             "level": "SHIPMENT",
+        #                                             "amount": 21.0
+        #                                         }
+        #                                     ],
+        #                                     "currency": "USD"
+        #                                 }
+        #                             }
+        #                         ],
+        #                         "currency": "USD"
+        #                     },
+        #                     {
+        #                         "rateType": "LIST",
+        #                         "ratedWeightMethod": "ACTUAL",
+        #                         "totalDiscounts": 0.0,
+        #                         "totalBaseCharge": 15.88,
+        #                         "totalNetCharge": 48.33,
+        #                         "totalNetFedExCharge": 48.33,
+        #                         "shipmentRateDetail": {
+        #                             "rateZone": "4",
+        #                             "dimDivisor": 0,
+        #                             "fuelSurchargePercent": 15.0,
+        #                             "totalSurcharges": 32.45,
+        #                             "totalFreightDiscount": 0.0,
+        #                             "surCharges": [
+        #                                 {
+        #                                     "type": "FUEL",
+        #                                     "description": "Fuel Surcharge",
+        #                                     "level": "PACKAGE",
+        #                                     "amount": 6.3
+        #                                 },
+        #                                 {
+        #                                     "type": "RESIDENTIAL_DELIVERY",
+        #                                     "description": "Residential surcharge",
+        #                                     "level": "PACKAGE",
+        #                                     "amount": 5.15
+        #                                 },
+        #                                 {
+        #                                     "type": "HOME_DELIVERY_APPOINTMENT",
+        #                                     "description": "FedEx Appointment Home Delivery",
+        #                                     "level": "SHIPMENT",
+        #                                     "amount": 21.0
+        #                                 }
+        #                             ],
+        #                             "totalBillingWeight": {
+        #                                 "units": "LB",
+        #                                 "value": 10.0
+        #                             },
+        #                             "currency": "USD"
+        #                         },
+        #                         "ratedPackages": [
+        #                             {
+        #                                 "groupNumber": 0,
+        #                                 "effectiveNetDiscount": 0.0,
+        #                                 "packageRateDetail": {
+        #                                     "rateType": "PAYOR_LIST_PACKAGE",
+        #                                     "ratedWeightMethod": "ACTUAL",
+        #                                     "baseCharge": 15.88,
+        #                                     "netFreight": 15.88,
+        #                                     "totalSurcharges": 32.45,
+        #                                     "netFedExCharge": 48.33,
+        #                                     "totalTaxes": 0.0,
+        #                                     "netCharge": 48.33,
+        #                                     "totalRebates": 0.0,
+        #                                     "billingWeight": {
+        #                                         "units": "LB",
+        #                                         "value": 10.0
+        #                                     },
+        #                                     "totalFreightDiscounts": 0.0,
+        #                                     "surcharges": [
+        #                                         {
+        #                                             "type": "FUEL",
+        #                                             "description": "Fuel Surcharge",
+        #                                             "level": "PACKAGE",
+        #                                             "amount": 6.3
+        #                                         },
+        #                                         {
+        #                                             "type": "RESIDENTIAL_DELIVERY",
+        #                                             "description": "Residential surcharge",
+        #                                             "level": "PACKAGE",
+        #                                             "amount": 5.15
+        #                                         },
+        #                                         {
+        #                                             "type": "HOME_DELIVERY_APPOINTMENT",
+        #                                             "description": "FedEx Appointment Home Delivery",
+        #                                             "level": "SHIPMENT",
+        #                                             "amount": 21.0
+        #                                         }
+        #                                     ],
+        #                                     "currency": "USD"
+        #                                 }
+        #                             }
+        #                         ],
+        #                         "currency": "USD"
+        #                     }
+        #                 ],
+        #                 "operationalDetail": {
+        #                     "ineligibleForMoneyBackGuarantee": false,
+        #                     "astraDescription": "FXH",
+        #                     "airportId": "DFW",
+        #                     "serviceCode": "90"
+        #                 },
+        #                 "signatureOptionType": "SERVICE_DEFAULT",
+        #                 "serviceDescription": {
+        #                     "serviceId": "EP1000000133",
+        #                     "serviceType": "GROUND_HOME_DELIVERY",
+        #                     "code": "90",
+        #                     "names": [
+        #                         {
+        #                             "type": "long",
+        #                             "encoding": "utf-8",
+        #                             "value": "FedEx Home DeliveryÂ®"
+        #                         },
+        #                         {
+        #                             "type": "long",
+        #                             "encoding": "ascii",
+        #                             "value": "FedEx Home Delivery"
+        #                         },
+        #                         {
+        #                             "type": "medium",
+        #                             "encoding": "utf-8",
+        #                             "value": "Home DeliveryÂ®"
+        #                         },
+        #                         {
+        #                             "type": "medium",
+        #                             "encoding": "ascii",
+        #                             "value": "Home Delivery"
+        #                         },
+        #                         {
+        #                             "type": "short",
+        #                             "encoding": "utf-8",
+        #                             "value": "HD"
+        #                         },
+        #                         {
+        #                             "type": "short",
+        #                             "encoding": "ascii",
+        #                             "value": "HD"
+        #                         },
+        #                         {
+        #                             "type": "abbrv",
+        #                             "encoding": "ascii",
+        #                             "value": "QH"
+        #                         }
+        #                     ],
+        #                     "description": "FedEx Home Delivery",
+        #                     "astraDescription": "FXH"
+        #                 }
+        #             }
+        #         ],
+        #         "quoteDate": "2026-03-03",
+        #         "encoded": false
+        #     }
+        # }
 
-        # response = JSON.parse(request)
+        response = JSON.parse(request)
 
         # raise "the response #{response}"
         Rails.logger.info("[FedexRest] rate response: #{response.inspect}")
@@ -398,7 +440,6 @@ module ActiveShipping
     end
 
     def http_request(full_url, body, test = false)
-      raise "full_url: #{full_url}, body: #{body.inspect}"
       ssl_post(full_url, body, {
         "Authorization" => "Bearer #{access_token(test:)}",
         "Content-type" => "application/json"
@@ -423,7 +464,7 @@ module ActiveShipping
       client_secret = @options[:client_secret]
 
       # The access token is valid for 1 hour.
-      # Rails.cache.fetch("store_fedex_access_token:#{client_id}", expires_in: 59.minutes, force: renew) do
+      Rails.cache.fetch("store_fedex_access_token:#{client_id}", expires_in: 59.minutes, force: renew) do
         response = ssl_post(
           # "#{LIVE_URL}/oauth/token",
           "#{TEST_URL}/oauth/token",
@@ -437,7 +478,7 @@ module ActiveShipping
 
         Rails.logger.info("[FedexRest] access token response: #{response.inspect}")
         JSON.parse(response).fetch("access_token")
-      # end
+      end
     end
 
     def handle_exception(e)
