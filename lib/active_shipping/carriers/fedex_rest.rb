@@ -369,7 +369,11 @@ module ActiveShipping
       rate_reply_details.map do |detail|
         mail_class = detail["serviceType"]
         rated_shipment = detail["ratedShipmentDetails"]&.first
+        Rails.logger.info("[FedexRest] mail_class #{mail_class.inspect}")
+        Rails.logger.info("[FedexRest] rated_shipment: #{rated_shipment.inspect}")
+
         price = rated_shipment&.dig("totalNetFedExCharge")
+        Rails.logger.info("[FedexRest] price: #{price.inspect}")
 
         { mail_class: mail_class, price: price }
       end
