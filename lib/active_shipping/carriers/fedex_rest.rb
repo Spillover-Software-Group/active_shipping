@@ -126,12 +126,12 @@ module ActiveShipping
           }
         }
         
-        # request = http_request(
-        #   # "#{options[:test] ? TEST_URL : LIVE_URL}/rate/v1/rates/quotes",
-        #   "#{TEST_URL}/rate/v1/rates/quotes",
-        #   body.to_json,
-        #   test: options[:test]
-        # )
+        request = http_request(
+          # "#{options[:test] ? TEST_URL : LIVE_URL}/rate/v1/rates/quotes",
+          "#{TEST_URL}/rate/v1/rates/quotes",
+          body.to_json,
+          test: options[:test]
+        )
 
         # response = {
         #   "transactionId": "APIF_SV_RATC_TxID3697f693-8ef8-4330-9643-1b5b26595716",
