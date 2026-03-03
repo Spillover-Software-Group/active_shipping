@@ -154,25 +154,26 @@ module ActiveShipping
     end
 
     def access_token(renew: false, test: false)
-      client_id = @options[:client_id]
-      client_secret = @options[:client_secret]
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzY29wZSI6WyJDWFMtVFAiXSwiUGF5bG9hZCI6eyJjbGllbnRJZGVudGl0eSI6eyJjbGllbnRLZXkiOiJsNzZhNWU3ZmIzYzNjOTRkNmFhZjgxNGQ3YTZjZWJmYTJlIn0sImF1dGhlbnRpY2F0aW9uUmVhbG0iOiJDTUFDIiwiYWRkaXRpb25hbElkZW50aXR5Ijp7InRpbWVTdGFtcCI6IjAzLU1hci0yMDI2IDAyOjQ1OjEzIEVTVCIsImdyYW50X3R5cGUiOiJjbGllbnRfY3JlZGVudGlhbHMiLCJhcGltb2RlIjoiU2FuZGJveCIsImN4c0lzcyI6Imh0dHBzOi8vY3hzYXV0aHNlcnZlci1zdGFnaW5nLmFwcC5wYWFzLmZlZGV4LmNvbS90b2tlbi9vYXV0aDIifSwicGVyc29uYVR5cGUiOiJEaXJlY3RJbnRlZ3JhdG9yX0IyQiJ9LCJleHAiOjE3NzI1Mjc1MTMsImp0aSI6IjI1OTQwOTE4LTUzMzctNDNkMS04NjQ5LWZlYjAyZjkwMmIwZCJ9.kGxXQuuKkxo9DdL4B3XoIsuZm248hcT9pxaLhyNrcqMzs_XlyDrZ_8OCvYrsbjjuxs7bL8qBOrgKFLCuXem6KdGzyJgKBgUf8ZBPbNi48Yv5Ytzvz3AP7HxrJrY1rOmOIZlFhpK22qej0_TslP1OTLwfRy8le-UjplXEpypWv7_nWP4Zmxnz4t4NunX5X4IrMWzHEnp2QN67vlCjY5uAjPE3Spkwpxo2h397IIzMMkhGAhfBOoTuACfgtMu18ikAv54O9_f3UF6GVNRqZx3sPXQeGW267i_3lqFecwHZxv472wwexuw73vkeEGL9kJ01thloUVfJ3EXTq2mm3nXFT8BQO3AWJYxtTYw6gDljGNq5uTa1lQYKyRJXwmLowTB3ODztwOzXrsc8kWL-U1a8daNZI3TceV05SV3OYSimECspcPPHiMaI4wp2LsDz-AGGV_huFMdJoTGaOymDVXJSSMRgjiiyenyq3PeSt5UmUA_iKon_GxozRl9m30MtFLDg4cgRS8Y6BdW3EznskQl8rg828CGg79mqBPw0v1Sx2_j4lp__0l91-Du_XfZtHw4DpgPkU7SAnUFKq6mUZEYnWsn99SG4s07AWw90AuxrV7M1-8QfJF-_CCdtzrR_2j2tlETyfE6mA2RG_4mgTUT0AvZ1R_X4m4EbuMwU6r0WY1E"
+      # client_id = @options[:client_id]
+      # client_secret = @options[:client_secret]
 
-      # The access token is valid for 1 hour.
-      Rails.cache.fetch("store_fedex_access_token:#{client_id}", expires_in: 59.minutes, force: renew) do
-        response = ssl_post(
-          # "#{LIVE_URL}/oauth/token",
-          "#{TEST_URL}/oauth/token",
-          {
-            grant_type: "client_credentials",
-            client_id: client_id,
-            client_secret: client_secret
-          }.to_query,
-          { "Content-Type" => "application/x-www-form-urlencoded" }
-        )
+      # # The access token is valid for 1 hour.
+      # Rails.cache.fetch("store_fedex_access_token:#{client_id}", expires_in: 59.minutes, force: renew) do
+      #   response = ssl_post(
+      #     # "#{LIVE_URL}/oauth/token",
+      #     "#{TEST_URL}/oauth/token",
+      #     {
+      #       grant_type: "client_credentials",
+      #       client_id: client_id,
+      #       client_secret: client_secret
+      #     }.to_query,
+      #     { "Content-Type" => "application/x-www-form-urlencoded" }
+      #   )
 
-        Rails.logger.info("[FedexRest] access token response: #{response.inspect}")
-        JSON.parse(response).fetch("access_token")
-      end
+      #   Rails.logger.info("[FedexRest] access token response: #{response.inspect}")
+      #   JSON.parse(response).fetch("access_token")
+      # end
     end
 
     def handle_exception(e)
