@@ -59,7 +59,7 @@ module ActiveShipping
       message = ''
       packages_rates = []
 
-      begin
+      # begin
         body = {
           accountNumber: {
             value: @options[:client_account],
@@ -345,16 +345,18 @@ module ActiveShipping
         }
 
         response = JSON.parse(request)
+
+        raise "the response #{response}"
         Rails.logger.info("[FedexRest] rate response: #{response.inspect}")
         rate_estimates = get_rate_estimates(response)
         Rails.logger.info("[FedexRest] rate estimates: #{rate_estimates.inspect}")
 
-      rescue ActiveShipping::ResponseError => e
-         # If for any reason the request fails, we return an error and display the message
-        # "We are unable to calculate shipping rates for the selected items" to the user
-        raise "FedEx API error: #{e.message}"
-        packages_rates = []
-      end
+      # rescue ActiveShipping::ResponseError => e
+      #    # If for any reason the request fails, we return an error and display the message
+      #   # "We are unable to calculate shipping rates for the selected items" to the user
+      #   raise "FedEx API error: #{e.message}"
+      #   packages_rates = []
+      # end
 
       RateResponse.new(success, message, { response: success }, :rates => rate_estimates)
     end
