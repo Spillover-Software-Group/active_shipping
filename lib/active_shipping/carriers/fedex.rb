@@ -91,7 +91,6 @@ module ActiveShipping
 
         response = JSON.parse(request)
         rate_estimates = get_rate_estimates(response, origin, destination, packages)
-
       rescue ActiveShipping::ResponseError => e
         # If for any reason the request fails, we return an error and display the message
         # "We are unable to calculate shipping rates for the selected items" to the user
@@ -137,6 +136,8 @@ module ActiveShipping
         "Content-type" => "application/json"
       })
     rescue ActiveUtils::ResponseError => e
+      Rails.logger.info "FedEx API request failed: #{e.message}"
+
       if e.message == "Failed with 401 Unauthorized"
         begin
           ssl_post(full_url, body, {
@@ -173,6 +174,7 @@ module ActiveShipping
 
     def handle_exception(e)
       ExceptionNotifier.notify_exception(e) if defined?(ExceptionNotifier)
+      raise
     end
   end
 end
