@@ -95,14 +95,18 @@ module ActiveShipping
           }
         }
 
-        request = http_request(
-          "#{options[:test] ? TEST_URL : LIVE_URL}/rate/v1/rates/quotes",
-          body.to_json,
-          test: options[:test]
-        )
+        raise "Raise error for now FedEx API error: #{e.message}"
 
-        response = JSON.parse(request)
-        rate_estimates = get_rate_estimates(response, origin, destination, packages)
+        # request = http_request(
+        #   "#{options[:test] ? TEST_URL : LIVE_URL}/rate/v1/rates/quotes",
+        #   body.to_json,
+        #   test: options[:test]
+        # )
+
+        # response = JSON.parse(request)
+        # rate_estimates = get_rate_estimates(response, origin, destination, packages)
+
+        
       rescue ActiveShipping::ResponseError => e
         # If for any reason the request fails, we return an error and display the message
         # "We are unable to calculate shipping rates for the selected items" to the user
