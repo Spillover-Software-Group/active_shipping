@@ -78,7 +78,7 @@ module ActiveShipping
             },
             shipmentSpecialServices: {
               specialServiceTypes: [
-                "FEDEX_ONE_RATE"
+                "HOME_DELIVERY_PREMIUM"
               ],
               homeDeliveryPremiumDetail: {
                 homedeliveryPremiumType: "APPOINTMENT"
