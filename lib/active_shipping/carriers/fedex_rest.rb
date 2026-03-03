@@ -45,7 +45,7 @@ module ActiveShipping
     end
 
     def find_rates(origin, destination, packages, options = {})
-    raise "#{packages.inspect} from find_rates active_shipping/carriers/fedex_rest.rb"
+    raise "#{packages} from find_rates active_shipping/carriers/fedex_rest.rb"
       options = @options.merge(options)
 
       origin = Location.from(origin)
