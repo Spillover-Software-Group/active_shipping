@@ -59,7 +59,6 @@ module ActiveShipping
                 "value": 1.0
               }
             }]
-            preferredCurrency: "USD"
           }
         }
 
