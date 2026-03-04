@@ -45,8 +45,9 @@ module ActiveShipping
             },
             recipient: {
               address: {
-              postalCode: destination.zip,
-              countryCode: "US"
+                postalCode: destination.zip,
+                countryCode: "US",
+                residential: true
               }
             },
             pickupType: "DROPOFF_AT_FEDEX_LOCATION",
