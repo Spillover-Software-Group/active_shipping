@@ -11,35 +11,6 @@ module ActiveShipping
     TEST_URL = 'https://apis-sandbox.fedex.com'
     LIVE_URL = 'https://apis.fedex.com'
 
-    SERVICE_TYPES = {
-      "PRIORITY_OVERNIGHT" => "FedEx Priority Overnight",
-      "PRIORITY_OVERNIGHT_SATURDAY_DELIVERY" => "FedEx Priority Overnight Saturday Delivery",
-      "FEDEX_2_DAY" => "FedEx 2 Day",
-      "FEDEX_2_DAY_SATURDAY_DELIVERY" => "FedEx 2 Day Saturday Delivery",
-      "STANDARD_OVERNIGHT" => "FedEx Standard Overnight",
-      "FIRST_OVERNIGHT" => "FedEx First Overnight",
-      "FIRST_OVERNIGHT_SATURDAY_DELIVERY" => "FedEx First Overnight Saturday Delivery",
-      "FEDEX_EXPRESS_SAVER" => "FedEx Express Saver",
-      "FEDEX_1_DAY_FREIGHT" => "FedEx 1 Day Freight",
-      "FEDEX_1_DAY_FREIGHT_SATURDAY_DELIVERY" => "FedEx 1 Day Freight Saturday Delivery",
-      "FEDEX_2_DAY_FREIGHT" => "FedEx 2 Day Freight",
-      "FEDEX_2_DAY_FREIGHT_SATURDAY_DELIVERY" => "FedEx 2 Day Freight Saturday Delivery",
-      "FEDEX_3_DAY_FREIGHT" => "FedEx 3 Day Freight",
-      "FEDEX_3_DAY_FREIGHT_SATURDAY_DELIVERY" => "FedEx 3 Day Freight Saturday Delivery",
-      "INTERNATIONAL_PRIORITY" => "FedEx International Priority",
-      "INTERNATIONAL_PRIORITY_SATURDAY_DELIVERY" => "FedEx International Priority Saturday Delivery",
-      "INTERNATIONAL_ECONOMY" => "FedEx International Economy",
-      "INTERNATIONAL_FIRST" => "FedEx International First",
-      "INTERNATIONAL_PRIORITY_FREIGHT" => "FedEx International Priority Freight",
-      "INTERNATIONAL_ECONOMY_FREIGHT" => "FedEx International Economy Freight",
-      "GROUND_HOME_DELIVERY" => "FedEx Ground Home Delivery",
-      "FEDEX_GROUND" => "FedEx Ground",
-      "INTERNATIONAL_GROUND" => "FedEx International Ground",
-      "SMART_POST" => "FedEx SmartPost",
-      "FEDEX_FREIGHT_PRIORITY" => "FedEx Freight Priority",
-      "FEDEX_FREIGHT_ECONOMY" => "FedEx Freight Economy"
-    }
-
     def requirements
       [:client_id, :client_secret, :client_account]
     end
@@ -59,51 +30,40 @@ module ActiveShipping
       message = ''
 
       begin
-        # body = {
-        #   accountNumber: {
-        #     value: @options[:client_account],
-        #   },
-        #   requestedShipment: {
-        #     shipper: {
-        #       address: {
-        #         postalCode: origin.zip,
-        #         countryCode: "US"
-        #       }
-        #     },
-        #     recipient: {
-        #       address: {
-        #       postalCode: destination.zip,
-        #       countryCode: "US"
-        #       }
-        #     },
-        #     shipmentSpecialServices: {
-        #       specialServiceTypes: [
-        #         "HOME_DELIVERY_PREMIUM"
-        #       ],
-        #       homeDeliveryPremiumDetail: {
-        #         homedeliveryPremiumType: "APPOINTMENT"
-        #       }
-        #     },
-        #     serviceType: "GROUND_HOME_DELIVERY",
-        #     pickupType: "CONTACT_FEDEX_TO_SCHEDULE",
-        #     rateRequestType: [
-        #       "LIST",
-        #       "ACCOUNT"
-        #     ],
-        #     requestedPackageLineItems: requestedPackageLineItems(packages),
-        #     preferredCurrency: "USD"
-        #   }
-        # }
+        body = {
+          accountNumber: {
+            value: @options[:client_account],
+          },
+          requestedShipment: {
+            shipper: {
+              address: {
+                postalCode: origin.zip,
+                countryCode: "US"
+              }
+            },
+            recipient: {
+              address: {
+              postalCode: destination.zip,
+              countryCode: "US"
+              }
+            },
+            pickupType: "DROPOFF_AT_FEDEX_LOCATION",
+            rateRequestType: [
+              "LIST",
+              "ACCOUNT"
+            ],
+            requestedPackageLineItems: [requestedPackageLineItems(packages)],
+          }
+        }
 
-        # request = http_request(
-        #   "#{options[:test] ? TEST_URL : LIVE_URL}/rate/v1/rates/quotes",
-        #   body.to_json,
-        #   test: options[:test]
-        # )
+         request = http_request(
+            "#{options[:test] ? TEST_URL : LIVE_URL}/rate/v1/rates/quotes",
+            body.to_json,
+            test: options[:test]
+         )
 
-        # response = JSON.parse(request)
-        # rate_estimates = get_rate_estimates(response, origin, destination, packages)
-        rate_estimates = []
+        response = JSON.parse(request)
+        rate_estimates = get_rate_estimates(response, origin, destination, packages)
       rescue ActiveShipping::ResponseError => e
         # If for any reason the request fails, we return an error and display the message
         # "We are unable to calculate shipping rates for the selected items" to the user
@@ -132,15 +92,16 @@ module ActiveShipping
       end
     end
 
+    # Sum the lbs of all the packages and return a single object with the total weight
     def requestedPackageLineItems(packages)
-      packages.map do |package|
-        {
-          weight: {
-            units: "LB",
-            value: package.lbs.to_f
-          },
+      total_lbs = packages.sum { |package| package.lbs.to_f }
+
+      {
+        weight: {
+          units: "LB",
+          value: total_lbs
         }
-      end
+      }
     end
 
     def http_request(full_url, body, test = false)
