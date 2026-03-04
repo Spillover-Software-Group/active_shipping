@@ -52,13 +52,7 @@ module ActiveShipping
               "LIST",
               "ACCOUNT"
             ],
-            # requestedPackageLineItems: [requestedPackageLineItems(packages)],
-            requestedPackageLineItems: [{
-              "weight": {
-                "units": "LB",
-                "value": 1.0
-              }
-            }]
+            requestedPackageLineItems: [requestedPackageLineItems(packages)],
           }
         }
 
