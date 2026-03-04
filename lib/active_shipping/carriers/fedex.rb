@@ -8,6 +8,8 @@ module ActiveShipping
     cattr_reader :name
     @@name = "FedEx"
 
+    SPILLOVER_ACCOUNT_NUMBER = "786892619"
+
     TEST_URL = 'https://apis-sandbox.fedex.com'
     LIVE_URL = 'https://apis.fedex.com'
 
@@ -32,7 +34,7 @@ module ActiveShipping
       begin
         body = {
           accountNumber: {
-            value: @options[:client_account],
+            value: @options[:client_account] || SPILLOVER_ACCOUNT_NUMBER,
           },
           requestedShipment: {
             shipper: {
