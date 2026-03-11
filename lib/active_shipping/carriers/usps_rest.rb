@@ -1,3 +1,5 @@
+# DOCS: https://developers.usps.com/domesticpricesv3#tag/Resources/operation/post-total-rates-search
+
 module ActiveShipping
   class USPSRest < Carrier
     self.retry_safe = true
@@ -11,6 +13,8 @@ module ActiveShipping
 
     # Array of U.S. possessions according to USPS: https://www.usps.com/ship/official-abbreviations.htm
     US_POSSESSIONS = %w(AS FM GU MH MP PW PR VI)
+
+    VALID_RATE_INDICATORS = %w[SP EX] # SP = Single-piece, EX = Priority Express, etc.
 
     SERVICE_TYPES = [
       "PARCEL_SELECT",
@@ -135,8 +139,6 @@ module ActiveShipping
     end
 
     def generate_package_rates(response)
-      VALID_RATE_INDICATORS = %w[SP EX] # SP = Single-piece, EX = Priority Express, etc.
-      
       services_rates = SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
           rate = option["rates"].first
