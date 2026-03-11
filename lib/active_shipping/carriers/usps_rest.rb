@@ -135,18 +135,20 @@ module ActiveShipping
     end
 
     def generate_package_rates(response)
+      VALID_RATE_INDICATORS = %w[SP EX] # SP = Single-piece, EX = Priority Express, etc.
+      
       services_rates = SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
           rate = option["rates"].first
 
           rate["mailClass"] == service_type &&
-          rate["processingCategory"] == "MACHINABLE"
+          rate["processingCategory"] == "MACHINABLE" &&
+          VALID_RATE_INDICATORS.include?(rate["rateIndicator"])
         end
 
         next if rates.empty?
 
         min_price_option = rates.min_by { |option| option["totalPrice"] }
-
         service_rate = min_price_option["rates"].first
 
         {
