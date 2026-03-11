@@ -135,22 +135,19 @@ module ActiveShipping
     end
 
     def generate_package_rates(response)
-      # USPS returns more than one from the same service
-      # we find the minimun price for a service and return it
       services_rates = SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
-          option["rates"].any? { |rate| rate["mailClass"] == service_type }
+          rate = option["rates"].first
+
+          rate["mailClass"] == service_type &&
+          rate["processingCategory"] == "MACHINABLE"
         end
 
-        next if rates.nil? || rates.empty?
+        next if rates.empty?
 
-        max_price_option = rates.max_by do |option|
-          option["rates"].map { |rate| rate["price"] }.max
-        end
+        min_price_option = rates.min_by { |option| option["totalPrice"] }
 
-        service_rate = max_price_option["rates"].find do |rate|
-          rate["mailClass"] == service_type
-        end
+        service_rate = min_price_option["rates"].first
 
         {
           mail_class: service_rate["mailClass"],
@@ -158,7 +155,7 @@ module ActiveShipping
         }
       end
 
-      services_rates.compact!
+      services_rates.compact
     end
 
     private
