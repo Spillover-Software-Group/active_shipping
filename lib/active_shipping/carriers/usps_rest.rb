@@ -49,6 +49,8 @@ module ActiveShipping
       message = ''
       packages_rates = []
 
+      Rails.logger.info "USPS REST API request: origin=#{origin.zip}, destination=#{destination.zip}, packages=#{packages.inspect}"
+
       packages.each_with_index do |package, index|
         begin
           body = {
@@ -59,9 +61,12 @@ module ActiveShipping
             width: package.inches(:width).to_f,
             height: package.inches(:height).to_f,
           }
+
+          Rails.logger.info "USPS REST API request body for package #{index}: #{body.inspect}"
           
           request = http_request(
-            "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
+            # "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
+            "#{TEST_URL}/prices/v3/total-rates/search",
             body.to_json,
             test: options[:test]
           )
@@ -164,23 +169,25 @@ module ActiveShipping
     end
 
     def access_token(renew: false, test: false)
-      client_id = @options[:client_id]
-      client_secret = @options[:client_secret]
+      return "eyJraWQiOiJ5MmRGRGY3eDdFQkFsQXlob0RLYld2ejlNaWxHTzlnaEJZS2c3OV9zRko4IiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJlbnRpdGxlbWVudHMiOltdLCJzdWIiOiIiLCJjcmlkIjoiIiwic3ViX2lkIjoiIiwicm9sZXMiOltdLCJwYXltZW50X2FjY291bnRzIjoiIiwiaXNzIjoiaHR0cHM6Ly9jYXQta2V5Yy51c3BzLmNvbS9yZWFsbXMvVVNQUyIsImNvbnRyYWN0cyI6e30sInRyYWNraW5nIjp7fSwiYXVkIjpbInBheW1lbnRzIiwicHJpY2VzIiwic3Vic2NyaXB0aW9ucy10cmFja2luZyIsIm9yZ2FuaXphdGlvbnMiXSwiYXpwIjoiTldabjZlQUJ6OU1ZcUVYMjFEd1gzYWhiZXY2ZUNkSnMiLCJtYWlsX293bmVycyI6W10sInNjb3BlIjoiZG9tZXN0aWMtcHJpY2VzIGFkZHJlc3NlcyBpbnRlcm5hdGlvbmFsLXByaWNlcyBzZXJ2aWNlLXN0YW5kYXJkcyBzaGlwbWVudHMiLCJjb21wYW55X25hbWUiOiIiLCJleHAiOjE3NzMyNjgzNzEsImlhdCI6MTc3MzIzOTU3MSwianRpIjoiYjZiNjQ3OWItMmNlMS00MzEzLWFhOTctYTUwODE5NjU0OTVmIn0.GuSU8jSurfrNnhzTMeCnef1hMqcD03DW3a8fT-EBKcSq6D826pqdPO2HGz4Vf40XnxdyI_J3t3l1rp0JpSwWtRrlmQ9iTKOP1xNqx6JLjXNsXgnbmoGlsPGs9AZcIBv5e2833TnR1-8oSHEwb_BdNTuYmTMoIcHdw2HLd-UmMlO8x3Dw3zPZZCJ9d95BlW8XpezsHeW0Jm2D4zekbiChd4buBI5u190ZFJk-pj1HO4zzcOcSVFgme5bTbjZLCWrniDCfmsEhu47PNOQMqChG4jotKdVxcTI6x6Kz_nsYcKi3WyTC04g6-pyyMi-ZLXThUogIcjzZFzhzG4__A_L--w"
 
-      # From my testing, the access token is valid for 8 hours.
-      Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
-        response = ssl_post(
-          "#{LIVE_URL}/oauth2/v3/token",
-          {
-            grant_type: "client_credentials",
-            client_id: client_id,
-            client_secret: client_secret
-          }.to_json,
-          { "Content-Type" => "application/json" }
-        )
+      # client_id = @options[:client_id]
+      # client_secret = @options[:client_secret]
 
-        JSON.parse(response).fetch("access_token")
-      end
+      # # From my testing, the access token is valid for 8 hours.
+      # Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
+      #   response = ssl_post(
+      #     "#{LIVE_URL}/oauth2/v3/token",
+      #     {
+      #       grant_type: "client_credentials",
+      #       client_id: client_id,
+      #       client_secret: client_secret
+      #     }.to_json,
+      #     { "Content-Type" => "application/json" }
+      #   )
+
+      #   JSON.parse(response).fetch("access_token")
+      # end
     end
 
     def handle_exception(e)
