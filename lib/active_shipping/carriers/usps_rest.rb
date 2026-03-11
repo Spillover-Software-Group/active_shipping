@@ -47,59 +47,52 @@ module ActiveShipping
     def us_rates(origin, destination, packages, options = {})
       success = true
       message = ''
-      packages_rates = []
+      rate_estimates = nil
 
-      Rails.logger.info "USPS REST API request: origin=#{origin.zip}, destination=#{destination.zip}, packages=#{packages.inspect}"
+      total_weight = packages.sum { |p| p.lbs.to_f }
+      largest_package = packages.max_by { |p| p.inches(:length).to_f * p.inches(:width).to_f * p.inches(:height).to_f }
 
-      packages.each_with_index do |package, index|
-        begin
-          body = {
-            originZIPCode: origin.zip,
-            destinationZIPCode: destination.zip,
-            weight: package.lbs.to_f,
-            length: package.inches(:length).to_f,
-            width: package.inches(:width).to_f,
-            height: package.inches(:height).to_f,
-          }
+      body = {
+        originZIPCode: "87109",
+        destinationZIPCode: "78751",
+        # originZIPCode: origin.zip,
+        # destinationZIPCode: destination.zip,
+        weight: total_weight,
+        length: largest_package.inches(:length).to_f,
+        width: largest_package.inches(:width).to_f,
+        height: largest_package.inches(:height).to_f,
+      }
 
-          Rails.logger.info "USPS REST API request body for package #{index}: #{body.inspect}"
-          
-          request = http_request(
-            # "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
-            "#{TEST_URL}/prices/v3/total-rates/search",
-            body.to_json,
-            test: options[:test]
-          )
+      Rails.logger.info "USPS REST API request: origin=#{origin.zip}, destination=#{destination.zip}, body=#{body.inspect}"
 
-          response = JSON.parse(request)
+      begin
+        request = http_request(
+          # "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
+          "#{TEST_URL}/prices/v3/total-rates/search",
+          body.to_json,
+          test: options[:test]
+        )
 
-          package = {
-            package: index,
-            rates: generate_package_rates(response)
-          }
-         
-          packages_rates << package
-        rescue StandardError => e
-          # If for any reason the request fails, we return an error and display the message
-          # "We are unable to calculate shipping rates for the selected items" to the user
-          packages_rates = []
-          break
-        end
-      end
-      
-      if packages_rates.any?
-        rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
-          RateEstimate.new(origin, destination, @@name, service[:mail_class],
-            :service_code => service[:mail_class],
-            :total_price => service[:price],
+        response = JSON.parse(request)
+        rates = generate_package_rates(response)
+
+        rate_estimates = rates.map do |rate|
+          RateEstimate.new(origin, destination, @@name, rate[:mail_class],
+            :service_code => rate[:mail_class],
+            :total_price => rate[:price],
             :currency => "USD",
             :packages => packages
           )
-        end        
-      else
+        end
+      rescue StandardError => e
+        # If for any reason the request fails, we return an error and display the message
+        # "We are unable to calculate shipping rates for the selected items" to the user
         success = false
         message = "An error occured. Please try again."
       end
+
+      success = false if rate_estimates.nil? || rate_estimates.empty?
+      message = "An error occured. Please try again." unless success
 
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
@@ -108,18 +101,37 @@ module ActiveShipping
 
     protected
 
+    # def generate_packages_rates_estimates(packages_rates)
+    #   # We sum all the prices from the same service for each package
+    #   # and return a single cost for each service
+    #   total_prices = Hash.new(0)
+
+    #   packages_rates.each do |package|
+    #     package[:rates].each do |rate|
+    #       total_prices[rate[:mail_class]] += rate[:price]
+    #     end
+    #   end
+
+    #   total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
+    # end
+
     def generate_packages_rates_estimates(packages_rates)
-      # We sum all the prices from the same service for each package
-      # and return a single cost for each service
-      total_prices = Hash.new(0)
+      services_per_package = packages_rates.map do |package|
+        package[:rates].map { |r| r[:mail_class] }
+      end
+
+      valid_services = services_per_package.reduce(&:intersection)
+
+      totals = Hash.new(0)
 
       packages_rates.each do |package|
         package[:rates].each do |rate|
-          total_prices[rate[:mail_class]] += rate[:price]
+          next unless valid_services.include?(rate[:mail_class])
+          totals[rate[:mail_class]] += rate[:price]
         end
       end
 
-      total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
+      totals.map { |mail_class, price| { mail_class: mail_class, price: price } }
     end
 
     def generate_package_rates(response)
@@ -135,7 +147,10 @@ module ActiveShipping
         max_price_option = rates.max_by do |option|
           option["rates"].map { |rate| rate["price"] }.max
         end
-        service_rate = max_price_option["rates"].first
+
+        service_rate = max_price_option["rates"].find do |rate|
+          rate["mailClass"] == service_type
+        end
 
         {
           mail_class: service_rate["mailClass"],
