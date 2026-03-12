@@ -54,16 +54,26 @@ module ActiveShipping
       rate_estimates = nil
 
       total_weight = packages.sum { |p| p.lbs.to_f }
-      largest_package = packages.max_by { |p| p.inches(:length).to_f * p.inches(:width).to_f * p.inches(:height).to_f }
+
+      largest_package = packages.max_by do |p|
+        p.inches(:length).to_f *
+        p.inches(:width).to_f *
+        p.inches(:height).to_f
+      end
+
+      length = largest_package.inches(:length).to_f
+      width  = largest_package.inches(:width).to_f
+      height = largest_package.inches(:height).to_f
 
       Rails.logger.info "Calculating USPS rates: packages=#{packages.inspect}, total_weight=#{total_weight}, largest_package=#{largest_package.inspect}"
       body = {
         originZIPCode: origin.zip,
         destinationZIPCode: destination.zip,
         weight: total_weight,
-        length: largest_package.inches(:length).to_f,
-        width: largest_package.inches(:width).to_f,
-        height: largest_package.inches(:height).to_f,
+        length: length,
+        width: width,
+        height: height,
+        processingCategory: "MACHINABLE"
       }
 
       Rails.logger.info "USPS REST API request: origin=#{origin.zip}, destination=#{destination.zip}, body=#{body.inspect}"
