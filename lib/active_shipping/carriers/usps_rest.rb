@@ -16,7 +16,7 @@ module ActiveShipping
 
     VALID_RATE_INDICATORS = %w[SP EX] # SP = Single-piece, EX = Priority Express, etc.
 
-    VALID_PROCESSING = %w[MACHINABLE NON_STANDARD]
+    VALID_PROCESSING = %w[MACHINABLE NON_STANDARD NONSTANDARD]
 
     SERVICE_TYPES = [
       "PARCEL_SELECT",
@@ -74,8 +74,7 @@ module ActiveShipping
         weight: total_weight,
         length: length,
         width: width,
-        height: height,
-        processingCategory: "MACHINABLE"
+        height: height
       }
 
       Rails.logger.info "USPS REST API request: origin=#{origin.zip}, destination=#{destination.zip}, body=#{body.inspect}"
@@ -87,7 +86,6 @@ module ActiveShipping
           test: options[:test]
         )
 
-        Rails.logger.info "USPS REST API response: #{request.inspect}"
         response = JSON.parse(request)
         Rails.logger.info "USPS REST API response: #{response.inspect}"
 
