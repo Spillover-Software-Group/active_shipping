@@ -57,10 +57,8 @@ module ActiveShipping
       largest_package = packages.max_by { |p| p.inches(:length).to_f * p.inches(:width).to_f * p.inches(:height).to_f }
 
       body = {
-        originZIPCode: "87109",
-        destinationZIPCode: "78751",
-        # originZIPCode: origin.zip,
-        # destinationZIPCode: destination.zip,
+        originZIPCode: origin.zip,
+        destinationZIPCode: destination.zip,
         weight: total_weight,
         length: largest_package.inches(:length).to_f,
         width: largest_package.inches(:width).to_f,
@@ -71,13 +69,14 @@ module ActiveShipping
 
       begin
         request = http_request(
-          # "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
-          "#{TEST_URL}/prices/v3/total-rates/search",
+          "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
           body.to_json,
           test: options[:test]
         )
 
         response = JSON.parse(request)
+        Rails.logger.info "USPS REST API response: #{response.inspect}"
+
         rates = generate_package_rates(response)
 
         rate_estimates = rates.map do |rate|
@@ -104,39 +103,6 @@ module ActiveShipping
     end
 
     protected
-
-    # def generate_packages_rates_estimates(packages_rates)
-    #   # We sum all the prices from the same service for each package
-    #   # and return a single cost for each service
-    #   total_prices = Hash.new(0)
-
-    #   packages_rates.each do |package|
-    #     package[:rates].each do |rate|
-    #       total_prices[rate[:mail_class]] += rate[:price]
-    #     end
-    #   end
-
-    #   total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
-    # end
-
-    def generate_packages_rates_estimates(packages_rates)
-      services_per_package = packages_rates.map do |package|
-        package[:rates].map { |r| r[:mail_class] }
-      end
-
-      valid_services = services_per_package.reduce(&:intersection)
-
-      totals = Hash.new(0)
-
-      packages_rates.each do |package|
-        package[:rates].each do |rate|
-          next unless valid_services.include?(rate[:mail_class])
-          totals[rate[:mail_class]] += rate[:price]
-        end
-      end
-
-      totals.map { |mail_class, price| { mail_class: mail_class, price: price } }
-    end
 
     def generate_package_rates(response)
       services_rates = SERVICE_TYPES.map do |service_type|
@@ -185,25 +151,23 @@ module ActiveShipping
     end
 
     def access_token(renew: false, test: false)
-      return "eyJraWQiOiJ5MmRGRGY3eDdFQkFsQXlob0RLYld2ejlNaWxHTzlnaEJZS2c3OV9zRko4IiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJlbnRpdGxlbWVudHMiOltdLCJzdWIiOiIiLCJjcmlkIjoiIiwic3ViX2lkIjoiIiwicm9sZXMiOltdLCJwYXltZW50X2FjY291bnRzIjoiIiwiaXNzIjoiaHR0cHM6Ly9jYXQta2V5Yy51c3BzLmNvbS9yZWFsbXMvVVNQUyIsImNvbnRyYWN0cyI6e30sInRyYWNraW5nIjp7fSwiYXVkIjpbInBheW1lbnRzIiwicHJpY2VzIiwic3Vic2NyaXB0aW9ucy10cmFja2luZyIsIm9yZ2FuaXphdGlvbnMiXSwiYXpwIjoiTldabjZlQUJ6OU1ZcUVYMjFEd1gzYWhiZXY2ZUNkSnMiLCJtYWlsX293bmVycyI6W10sInNjb3BlIjoiZG9tZXN0aWMtcHJpY2VzIGFkZHJlc3NlcyBpbnRlcm5hdGlvbmFsLXByaWNlcyBzZXJ2aWNlLXN0YW5kYXJkcyBzaGlwbWVudHMiLCJjb21wYW55X25hbWUiOiIiLCJleHAiOjE3NzMyNjgzNzEsImlhdCI6MTc3MzIzOTU3MSwianRpIjoiYjZiNjQ3OWItMmNlMS00MzEzLWFhOTctYTUwODE5NjU0OTVmIn0.GuSU8jSurfrNnhzTMeCnef1hMqcD03DW3a8fT-EBKcSq6D826pqdPO2HGz4Vf40XnxdyI_J3t3l1rp0JpSwWtRrlmQ9iTKOP1xNqx6JLjXNsXgnbmoGlsPGs9AZcIBv5e2833TnR1-8oSHEwb_BdNTuYmTMoIcHdw2HLd-UmMlO8x3Dw3zPZZCJ9d95BlW8XpezsHeW0Jm2D4zekbiChd4buBI5u190ZFJk-pj1HO4zzcOcSVFgme5bTbjZLCWrniDCfmsEhu47PNOQMqChG4jotKdVxcTI6x6Kz_nsYcKi3WyTC04g6-pyyMi-ZLXThUogIcjzZFzhzG4__A_L--w"
+      client_id = @options[:client_id]
+      client_secret = @options[:client_secret]
 
-      # client_id = @options[:client_id]
-      # client_secret = @options[:client_secret]
+      # From my testing, the access token is valid for 8 hours.
+      Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
+        response = ssl_post(
+          "#{LIVE_URL}/oauth2/v3/token",
+          {
+            grant_type: "client_credentials",
+            client_id: client_id,
+            client_secret: client_secret
+          }.to_json,
+          { "Content-Type" => "application/json" }
+        )
 
-      # # From my testing, the access token is valid for 8 hours.
-      # Rails.cache.fetch("store_usps_access_token:#{client_id}", expires_in: 7.hours, force: renew) do
-      #   response = ssl_post(
-      #     "#{LIVE_URL}/oauth2/v3/token",
-      #     {
-      #       grant_type: "client_credentials",
-      #       client_id: client_id,
-      #       client_secret: client_secret
-      #     }.to_json,
-      #     { "Content-Type" => "application/json" }
-      #   )
-
-      #   JSON.parse(response).fetch("access_token")
-      # end
+        JSON.parse(response).fetch("access_token")
+      end
     end
 
     def handle_exception(e)
