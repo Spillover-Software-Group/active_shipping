@@ -16,6 +16,8 @@ module ActiveShipping
 
     VALID_RATE_INDICATORS = %w[SP EX] # SP = Single-piece, EX = Priority Express, etc.
 
+    VALID_PROCESSING = %w[MACHINABLE NON_STANDARD]
+
     SERVICE_TYPES = [
       "PARCEL_SELECT",
       "PARCEL_SELECT_LIGHTWEIGHT",
@@ -120,10 +122,11 @@ module ActiveShipping
     def generate_package_rates(response)
       services_rates = SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
-          rate = option["rates"].first
+          rate = option["rates"]&.first
+          next unless rate
 
           rate["mailClass"] == service_type &&
-          rate["processingCategory"] == "MACHINABLE" &&
+          VALID_PROCESSING.include?(rate["processingCategory"]) &&
           VALID_RATE_INDICATORS.include?(rate["rateIndicator"])
         end
 
