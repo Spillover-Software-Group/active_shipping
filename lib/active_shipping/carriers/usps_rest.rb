@@ -74,6 +74,7 @@ module ActiveShipping
           test: options[:test]
         )
 
+        Rails.logger.info "USPS REST API response: #{request.inspect}"
         response = JSON.parse(request)
         Rails.logger.info "USPS REST API response: #{response.inspect}"
 
@@ -92,6 +93,7 @@ module ActiveShipping
         # "We are unable to calculate shipping rates for the selected items" to the user
         success = false
         message = "An error occured. Please try again."
+        Rails.logger.error "USPS REST API error: #{e.message}"
       end
 
       success = false if rate_estimates.nil? || rate_estimates.empty?
