@@ -1,3 +1,5 @@
+# DOCS: https://developers.usps.com/domesticpricesv3#tag/Resources/operation/post-total-rates-search
+
 module ActiveShipping
   class USPSRest < Carrier
     self.retry_safe = true
@@ -11,6 +13,8 @@ module ActiveShipping
 
     # Array of U.S. possessions according to USPS: https://www.usps.com/ship/official-abbreviations.htm
     US_POSSESSIONS = %w(AS FM GU MH MP PW PR VI)
+
+    VALID_RATE_INDICATORS = %w[SP EX] # SP = Single-piece, EX = Priority Express, etc.
 
     SERVICE_TYPES = [
       "PARCEL_SELECT",
@@ -47,54 +51,51 @@ module ActiveShipping
     def us_rates(origin, destination, packages, options = {})
       success = true
       message = ''
-      packages_rates = []
+      rate_estimates = nil
 
-      packages.each_with_index do |package, index|
-        begin
-          body = {
-            originZIPCode: origin.zip,
-            destinationZIPCode: destination.zip,
-            weight: package.lbs.to_f,
-            length: package.inches(:length).to_f,
-            width: package.inches(:width).to_f,
-            height: package.inches(:height).to_f,
-          }
-          
-          request = http_request(
-            "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
-            body.to_json,
-            test: options[:test]
-          )
+      total_weight = packages.sum { |p| p.lbs.to_f }
+      largest_package = packages.max_by { |p| p.inches(:length).to_f * p.inches(:width).to_f * p.inches(:height).to_f }
 
-          response = JSON.parse(request)
+      body = {
+        originZIPCode: origin.zip,
+        destinationZIPCode: destination.zip,
+        weight: total_weight,
+        length: largest_package.inches(:length).to_f,
+        width: largest_package.inches(:width).to_f,
+        height: largest_package.inches(:height).to_f,
+      }
 
-          package = {
-            package: index,
-            rates: generate_package_rates(response)
-          }
-         
-          packages_rates << package
-        rescue StandardError => e
-          # If for any reason the request fails, we return an error and display the message
-          # "We are unable to calculate shipping rates for the selected items" to the user
-          packages_rates = []
-          break
-        end
-      end
-      
-      if packages_rates.any?
-        rate_estimates = generate_packages_rates_estimates(packages_rates).map do |service|
-          RateEstimate.new(origin, destination, @@name, service[:mail_class],
-            :service_code => service[:mail_class],
-            :total_price => service[:price],
+      Rails.logger.info "USPS REST API request: origin=#{origin.zip}, destination=#{destination.zip}, body=#{body.inspect}"
+
+      begin
+        request = http_request(
+          "#{options[:test] ? TEST_URL : LIVE_URL}/prices/v3/total-rates/search",
+          body.to_json,
+          test: options[:test]
+        )
+
+        response = JSON.parse(request)
+        Rails.logger.info "USPS REST API response: #{response.inspect}"
+
+        rates = generate_package_rates(response)
+
+        rate_estimates = rates.map do |rate|
+          RateEstimate.new(origin, destination, @@name, rate[:mail_class],
+            :service_code => rate[:mail_class],
+            :total_price => rate[:price],
             :currency => "USD",
             :packages => packages
           )
-        end        
-      else
+        end
+      rescue StandardError => e
+        # If for any reason the request fails, we return an error and display the message
+        # "We are unable to calculate shipping rates for the selected items" to the user
         success = false
         message = "An error occured. Please try again."
       end
+
+      success = false if rate_estimates.nil? || rate_estimates.empty?
+      message = "An error occured. Please try again." unless success
 
       # RateResponse expectes a response object as third argument, but we don't have a single
       # response, so we are passing anything to fill the gap
@@ -103,34 +104,20 @@ module ActiveShipping
 
     protected
 
-    def generate_packages_rates_estimates(packages_rates)
-      # We sum all the prices from the same service for each package
-      # and return a single cost for each service
-      total_prices = Hash.new(0)
-
-      packages_rates.each do |package|
-        package[:rates].each do |rate|
-          total_prices[rate[:mail_class]] += rate[:price]
-        end
-      end
-
-      total_prices.map { |mail_class, price| { mail_class: mail_class, price: price } }
-    end
-
     def generate_package_rates(response)
-      # USPS returns more than one from the same service
-      # we find the minimun price for a service and return it
       services_rates = SERVICE_TYPES.map do |service_type|
         rates = response["rateOptions"].select do |option|
-          option["rates"].any? { |rate| rate["mailClass"] == service_type }
+          rate = option["rates"].first
+
+          rate["mailClass"] == service_type &&
+          rate["processingCategory"] == "MACHINABLE" &&
+          VALID_RATE_INDICATORS.include?(rate["rateIndicator"])
         end
 
-        next if rates.nil? || rates.empty?
+        next if rates.empty?
 
-        max_price_option = rates.max_by do |option|
-          option["rates"].map { |rate| rate["price"] }.max
-        end
-        service_rate = max_price_option["rates"].first
+        min_price_option = rates.min_by { |option| option["totalPrice"] }
+        service_rate = min_price_option["rates"].first
 
         {
           mail_class: service_rate["mailClass"],
@@ -138,7 +125,7 @@ module ActiveShipping
         }
       end
 
-      services_rates.compact!
+      services_rates.compact
     end
 
     private
